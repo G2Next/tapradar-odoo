@@ -51,7 +51,14 @@ docker compose run --rm odoo odoo -d cashback_test -i tapradar_cashback \
   --test-tags /tapradar_cashback --stop-after-init --without-demo=all
 ```
 
-## Henüz yok
+## TapRadar bağlantısı
 
-- TapRadar bağlantısı (Gutschein oluşunca/değişince uygulamaya gönderme)
-- POS fişinde TapRadar QR kodu
+- **Kasse → Konfiguration → Einstellungen → TapRadar:** TapRadar işletme hesabında
+  (Dashboard → Odoo-Kasse) oluşturulan entegrasyon anahtarını girin, "Verbindung testen".
+- Gutschein oluşunca/değişince TapRadar'a otomatik gönderilir (saatlik görev yakalar).
+- **Fişte QR kod** (`https://www.tapradar.app/l/odoo?...`): müşteri TapRadar ile tarar,
+  müşteri numarası hesabına bağlanır.
+- **Kasada kod:** müşteri uygulamada "Mein TapRadar-Code" açar, kasiyer kodu
+  müşteri kartındaki "TapRadar-Code" alanına okutur ve kaydeder.
+- Müşteri numarası = Kontakt'taki *Referenz*, boşsa `odoo-<id>`. TapRadar'a isim,
+  e-posta veya alışveriş verisi gönderilmez.

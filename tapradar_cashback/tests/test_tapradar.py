@@ -26,7 +26,7 @@ class TestTapradarConnection(CashbackCommon):
 
         company.tapradar_data_consent = True
         ping = {"ok": True, "integration_id": INTEGRATION_ID, "organization_name": "Feinkost Muster",
-                "link_secret": "new-secret", "receipt_link_base": "https://tapradar.app/l/odoo"}
+                "link_secret": "new-secret", "receipt_link_base": "https://www.tapradar.app/l/odoo"}
         with tapradar_api(lambda payload: (200, ping)) as sent:
             company.action_tapradar_connect()
         self.assertEqual(sent[0]["payload"], {"type": "ping"})
@@ -113,7 +113,7 @@ class TestTapradarConnection(CashbackCommon):
         url = self.customer.tapradar_link_url
         parts = urlparse(url)
         query = {k: v[0] for k, v in parse_qs(parts.query).items()}
-        self.assertEqual(f"{parts.scheme}://{parts.netloc}{parts.path}", "https://tapradar.app/l/odoo")
+        self.assertEqual(f"{parts.scheme}://{parts.netloc}{parts.path}", "https://www.tapradar.app/l/odoo")
         self.assertEqual(query["i"], INTEGRATION_ID)
         self.assertEqual(query["c"], "K-1042")
         # Same algorithm as public._customer_link_signature in TapRadar (checked against Postgres).

@@ -53,7 +53,7 @@ class ResCompany(models.Model):
             "tapradar_integration_id": result["integration_id"],
             "tapradar_link_secret": result["link_secret"],
             "tapradar_shop_name": result.get("organization_name") or "",
-            "tapradar_link_base": result.get("receipt_link_base") or "https://tapradar.app/l/odoo",
+            "tapradar_link_base": result.get("receipt_link_base") or "https://www.tapradar.app/l/odoo",
         })
         # Gift cards created while disconnected are sent now.
         self.env["tapradar.cashback.event"]._enqueue_company_cards(self)

@@ -51,7 +51,7 @@ class ResPartner(models.Model):
             ref = partner._tapradar_customer_ref() if enabled and partner.id else ""
             partner.tapradar_link_url = (
                 tapradar_api.receipt_link(
-                    company.tapradar_link_base or "https://tapradar.app/l/odoo",
+                    company.tapradar_link_base or "https://www.tapradar.app/l/odoo",
                     company.tapradar_integration_id,
                     company.tapradar_link_secret,
                     ref,

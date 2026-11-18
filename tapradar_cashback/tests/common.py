@@ -13,7 +13,7 @@ def connect_company(company):
         "tapradar_link_secret": "s3cret",
         "tapradar_integration_id": INTEGRATION_ID,
         "tapradar_shop_name": "Feinkost Muster",
-        "tapradar_link_base": "https://tapradar.app/l/odoo",
+        "tapradar_link_base": "https://www.tapradar.app/l/odoo",
         "tapradar_data_consent": True,
     })
 

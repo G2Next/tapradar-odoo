@@ -1,0 +1,109 @@
+<section class="container">
+    <div class="row">
+        <div class="col-md-12 text-center" style="margin-bottom: 24px;">
+            <h2 style="color: #875A7B; font-size: 34px; margin-top: 16px;">Cashback Gift Cards</h2>
+            <h3 style="color: #555555; font-size: 20px; font-weight: 400;">
+                Automatic gift cards that bring your customers back.
+            </h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <p style="font-size: 16px;">
+                Instead of giving a discount at the till, give it back as a personal gift card that can only
+                be used on the <b>next</b> purchase. During your cashback campaign, every paid Point of
+                Sale order of a customer creates or tops up that customer's gift card right away. The gift card
+                becomes usable the day after the campaign and stays valid until the date you choose.
+            </p>
+            <p style="font-size: 16px;">
+                Example with 10&nbsp;%: a customer spends 500&nbsp;EUR during the campaign and immediately receives a
+                50&nbsp;EUR gift card, which they can redeem from the day after the campaign. You can also give a
+                fixed amount instead, e.g. 5&nbsp;EUR for every purchase above 50&nbsp;EUR.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="container" style="margin-top: 24px;">
+    <div class="row">
+        <div class="col-md-12">
+            <h3 style="color: #875A7B; font-size: 24px;">Features</h3>
+        </div>
+        <div class="col-md-6">
+            <ul style="font-size: 15px;">
+                <li>Gift card created or updated <b>as soon as the POS order is paid</b></li>
+                <li>One gift card per customer and campaign; every purchase adds to it</li>
+                <li>Refunds during the campaign reduce the gift card automatically</li>
+                <li>Percentage (e.g. 5&nbsp;% or 10&nbsp;%) or a fixed amount, set by the manager</li>
+                <li>Minimum purchase per order or for the sum of all purchases</li>
+                <li>Exclude product categories, e.g. bottle and crate deposits</li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <ul style="font-size: 15px;">
+                <li><b>Not usable during the campaign</b>: refused at the POS with a clear message and on the
+                    server</li>
+                <li>Validity end date set by the manager; start date is the day after the campaign</li>
+                <li>Preview: who gets how much, with customer reference numbers</li>
+                <li>Limit the campaign to selected Points of Sale</li>
+                <li>Uses standard Odoo gift cards: redeem them like any other gift card</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="container" style="margin-top: 24px;">
+    <div class="row">
+        <div class="col-md-12">
+            <h3 style="color: #875A7B; font-size: 24px;">Set up a campaign</h3>
+            <p style="font-size: 15px;">
+                Point of Sale &gt; Configuration &gt; Cashback Campaigns. Choose the days, the percentage or fixed amount, the minimum
+                purchase, the gift card program and how long the gift cards stay valid, then click
+                <b>Activate</b>.
+            </p>
+            <img src="screenshot_form.png" alt="Campaign form" class="img-fluid"
+                 style="border: 1px solid #dddddd; margin-bottom: 24px;"/>
+        </div>
+        <div class="col-md-12">
+            <h3 style="color: #875A7B; font-size: 24px;">Gift cards created while you sell</h3>
+            <p style="font-size: 15px;">
+                Each customer has one gift card per campaign. Its value follows their purchases and refunds
+                during the campaign.
+            </p>
+            <img src="screenshot_cards.png" alt="Issued gift cards" class="img-fluid"
+                 style="border: 1px solid #dddddd; margin-bottom: 24px;"/>
+        </div>
+        <div class="col-md-12">
+            <h3 style="color: #875A7B; font-size: 24px;">Preview</h3>
+            <p style="font-size: 15px;">See every customer's gross purchases and gift card at any time.</p>
+            <img src="screenshot_preview.png" alt="Preview" class="img-fluid"
+                 style="border: 1px solid #dddddd; margin-bottom: 24px;"/>
+        </div>
+    </div>
+</section>
+
+<section class="container" style="margin-top: 24px;">
+    <div class="row">
+        <div class="col-md-12">
+            <h3 style="color: #875A7B; font-size: 24px;">How it works</h3>
+            <ul style="font-size: 15px;">
+                <li>The gross value includes taxes; products in excluded categories do not count.</li>
+                <li>Only orders with a customer set at the POS earn a gift card.</li>
+                <li>The gift card program's validity is set from the campaign, so Odoo itself only accepts the
+                    gift cards from the day after the campaign until the end date.</li>
+                <li>An hourly scheduled action catches up on any missed order and closes finished campaigns.
+                    Once a campaign is over, existing gift cards are never changed.</li>
+                <li>A POS left open overnight loads the programs once: reload it the day after the campaign.</li>
+                <li>The module sends no data outside your Odoo database.</li>
+            </ul>
+            <h3 style="color: #875A7B; font-size: 24px; margin-top: 16px;">Requirements</h3>
+            <ul style="font-size: 15px;">
+                <li>Odoo 17.0 Community or Enterprise, on premise or Odoo.sh</li>
+                <li>Depends on <code>pos_loyalty</code> (Point of Sale + Coupons &amp; Loyalty)</li>
+                <li>A dedicated gift card program per campaign; POS gift card setting
+                    "Scan existing gift cards"</li>
+                <li>Not available on Odoo Online, which does not allow custom Python modules</li>
+            </ul>
+        </div>
+    </div>
+</section>

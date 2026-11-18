@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="tapradar_cashback_view_tree" model="ir.ui.view">
+        <field name="name">tapradar.cashback.campaign.tree</field>
+        <field name="model">tapradar.cashback.campaign</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="reward_type"/>
+                <field name="valid_until"/>
+                <field name="card_count" string="Gift Cards"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="card_total"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'active'" decoration-success="state == 'done'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="tapradar_cashback_view_form" model="ir.ui.view">
+        <field name="name">tapradar.cashback.campaign.form</field>
+        <field name="model">tapradar.cashback.campaign</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_activate" type="object" string="Activate" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_preview" type="object" string="Preview"/>
+                    <button name="action_sync" type="object" string="Recalculate gift cards"
+                            invisible="state != 'active'"/>
+                    <button name="action_reset_to_draft" type="object" string="Back to draft"
+                            invisible="state != 'active'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_cards" type="object" class="oe_stat_button" icon="fa-gift"
+                                invisible="card_count == 0">
+                            <field name="card_count" widget="statinfo" string="Gift Cards"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Savings Days May 2026" readonly="state == 'done'"/></h1>
+                    </div>
+                    <group>
+                        <group string="Campaign">
+                            <field name="date_from" readonly="state != 'draft'"/>
+                            <field name="date_to" readonly="state != 'draft'"/>
+                            <field name="tz" readonly="state != 'draft'"/>
+                            <field name="pos_config_ids" widget="many2many_tags" readonly="state != 'draft'"
+                                   placeholder="All Points of Sale"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+                        </group>
+                        <group string="Gift card">
+                            <field name="currency_id" invisible="1"/>
+                            <field name="reward_type" widget="radio" readonly="state != 'draft'"/>
+                            <field name="percent" readonly="state != 'draft'" invisible="reward_type != 'percent'"
+                                   required="reward_type == 'percent'"/>
+                            <field name="fixed_amount" readonly="state != 'draft'" invisible="reward_type != 'fixed'"
+                                   required="reward_type == 'fixed'"/>
+                            <field name="min_amount" readonly="state != 'draft'"/>
+                            <field name="threshold_scope" readonly="state != 'draft'"/>
+                            <field name="rounding" readonly="state != 'draft'" invisible="reward_type != 'percent'"/>
+                            <field name="excluded_categ_ids" widget="many2many_tags" readonly="state != 'draft'"/>
+                            <field name="program_id" readonly="card_count > 0"/>
+                            <label for="valid_until" string="Usable"/>
+                            <div class="o_row">
+                                <field name="valid_from" class="oe_inline"/>
+                                <span>–</span>
+                                <field name="valid_until" class="oe_inline" readonly="state == 'done'"/>
+                            </div>
+                            <field name="send_email" readonly="state == 'done'"/>
+                        </group>
+                    </group>
+                    <group invisible="state == 'draft'">
+                        <group>
+                            <field name="card_total"/>
+                        </group>
+                    </group>
+                    <div class="text-muted" invisible="state != 'draft'">
+                        Once active, every paid POS purchase of a customer creates or updates the customer's
+                        gift card right away. It can only be used after the last campaign day.
+                    </div>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="tapradar_cashback_action" model="ir.actions.act_window">
+        <field name="name">Cashback Campaigns</field>
+        <field name="res_model">tapradar.cashback.campaign</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first cashback campaign</p>
+            <p>Every purchase during the campaign earns a personal gift card for the next purchase.</p>
+        </field>
+    </record>
+
+    <menuitem id="tapradar_cashback_menu"
+              action="tapradar_cashback_action"
+              name="Cashback Campaigns"
+              parent="point_of_sale.pos_config_menu_catalog"
+              groups="point_of_sale.group_pos_manager"
+              sequence="93"/>
+</odoo>

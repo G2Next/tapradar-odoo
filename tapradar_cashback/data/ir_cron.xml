@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="ir_cron_cashback_campaigns" model="ir.cron">
+        <field name="name">Cashback campaigns: update gift cards and close</field>
+        <field name="model_id" ref="model_tapradar_cashback_campaign"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_finish()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+    </record>
+
+    <record id="ir_cron_tapradar_send" model="ir.cron">
+        <field name="name">TapRadar: send gift card updates</field>
+        <field name="model_id" ref="model_tapradar_cashback_event"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_send()</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

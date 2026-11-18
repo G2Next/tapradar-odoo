@@ -1,0 +1,922 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* tapradar_cashback
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0-20260908\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-18 08:21+0000\n"
+"PO-Revision-Date: 2026-11-18 08:21+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_config_settings_view_form_tapradar
+msgid "<i class=\"fa fa-check text-success\"/> Connected with"
+msgstr "<i class=\"fa fa-check text-success\"/> Verbunden mit"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_view_form
+msgid "<span>–</span>"
+msgstr "<span>–</span>"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_tapradar_cashback_campaign__program_id
+msgid ""
+"A gift card program used only for this campaign. Its validity dates are set "
+"from the campaign."
+msgstr "Ein Geschenkkarten-Programm nur für diese Aktion. Seine Gültigkeit wird von der Aktion gesetzt."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__message_needaction
+msgid "Action Needed"
+msgstr "Aktion erforderlich"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_view_form
+msgid "Activate"
+msgstr "Aktivieren"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields.selection,name:tapradar_cashback.selection__tapradar_cashback_campaign__state__active
+msgid "Active"
+msgstr "Aktiv"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_tapradar_cashback_campaign__state
+msgid ""
+"Active: every paid POS order of a customer creates or updates the customer's"
+" gift card right away."
+msgstr "Aktiv: Jeder bezahlte Kassenauftrag eines Kunden erstellt oder erhöht sofort seinen Cashback-Gutschein."
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_view_form
+msgid "All Points of Sale"
+msgstr "Alle Kassen"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__message_attachment_count
+msgid "Attachment Count"
+msgstr "Anzahl Anhänge"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_event__attempts
+msgid "Attempts"
+msgstr "Versuche"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_view_form
+msgid "Back to draft"
+msgstr "Zurück auf Entwurf"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview__campaign_id
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_view_form
+msgid "Campaign"
+msgstr "Cashback-Aktion"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_event__card_id
+msgid "Card"
+msgstr "Gutschein"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__card_count
+msgid "Card Count"
+msgstr "Anzahl Gutscheine"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__percent
+msgid "Cashback (%)"
+msgstr "Cashback (%)"
+
+#. module: tapradar_cashback
+#: model:ir.model,name:tapradar_cashback.model_tapradar_cashback_campaign
+#: model:ir.model.fields,field_description:tapradar_cashback.field_loyalty_card__tapradar_campaign_id
+msgid "Cashback Campaign"
+msgstr "Cashback-Aktion"
+
+#. module: tapradar_cashback
+#: model:ir.actions.act_window,name:tapradar_cashback.tapradar_cashback_action
+#: model:ir.ui.menu,name:tapradar_cashback.tapradar_cashback_menu
+msgid "Cashback Campaigns"
+msgstr "Cashback-Aktionen"
+
+#. module: tapradar_cashback
+#: model:ir.model,name:tapradar_cashback.model_tapradar_cashback_preview
+msgid "Cashback campaign preview"
+msgstr "Cashback-Vorschau"
+
+#. module: tapradar_cashback
+#: model:ir.model,name:tapradar_cashback.model_tapradar_cashback_preview_line
+msgid "Cashback campaign preview line"
+msgstr "Cashback-Vorschauzeile"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_loyalty_card__tapradar_campaign_id
+msgid "Cashback campaign that issued this gift card."
+msgstr "Cashback-Aktion, die diesen Gutschein ausgegeben hat."
+
+#. module: tapradar_cashback
+#: model:ir.actions.server,name:tapradar_cashback.ir_cron_cashback_campaigns_ir_actions_server
+msgid "Cashback campaigns: update gift cards and close"
+msgstr "Cashback-Aktionen: Gutscheine aktualisieren und abschließen"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_config_settings_view_form_tapradar
+msgid ""
+"Cashback gift cards are delivered to your customers through the TapRadar "
+"app. Create the integration key in your TapRadar business account."
+msgstr "Cashback-Gutscheine erreichen Ihre Kunden über die TapRadar-App. Den Integrationsschlüssel erstellen Sie in Ihrem TapRadar-Geschäftskonto."
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_preview_view_form
+msgid "Close"
+msgstr "Schließen"
+
+#. module: tapradar_cashback
+#: model:ir.model,name:tapradar_cashback.model_res_company
+msgid "Companies"
+msgstr "Unternehmen"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__company_id
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_event__company_id
+msgid "Company"
+msgstr "Unternehmen"
+
+#. module: tapradar_cashback
+#: model:ir.model,name:tapradar_cashback.model_res_config_settings
+msgid "Config Settings"
+msgstr "Konfigurationseinstellungen"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_config_settings_view_form_tapradar
+msgid "Connect"
+msgstr "Verbinden"
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_company.py:0
+#, python-format
+msgid ""
+"Connect TapRadar first: Point of Sale > Configuration > Settings > TapRadar."
+" The cashback gift cards are delivered to your customers through the "
+"TapRadar app."
+msgstr "Verbinden Sie zuerst TapRadar: Kassensystem > Konfiguration > Einstellungen > TapRadar. Die Cashback-Gutscheine erreichen Ihre Kunden über die TapRadar-App."
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_config_settings_view_form_tapradar
+msgid "Connection"
+msgstr "Verbindung"
+
+#. module: tapradar_cashback
+#: model:ir.model,name:tapradar_cashback.model_res_partner
+msgid "Contact"
+msgstr "Kontakt"
+
+#. module: tapradar_cashback
+#: model_terms:ir.actions.act_window,help:tapradar_cashback.tapradar_cashback_action
+msgid "Create your first cashback campaign"
+msgstr "Erstellen Sie Ihre erste Cashback-Aktion"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__create_uid
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_event__create_uid
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview__create_uid
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview_line__create_uid
+msgid "Created by"
+msgstr "Erstellt von"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__create_date
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_event__create_date
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview__create_date
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview_line__create_date
+msgid "Created on"
+msgstr "Erstellt am"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__currency_id
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview__currency_id
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview_line__currency_id
+msgid "Currency"
+msgstr "Währung"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview_line__partner_id
+msgid "Customer"
+msgstr "Kunde"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview__customer_count
+msgid "Customer Count"
+msgstr "Anzahl Kunden"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview_line__customer_ref
+msgid "Customer number"
+msgstr "Kundennummer"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_res_company__tapradar_data_consent
+#: model:ir.model.fields,help:tapradar_cashback.field_res_config_settings__tapradar_data_consent
+msgid ""
+"Customer numbers and cashback gift cards (code, value, validity, status) are"
+" sent to TapRadar so that customers receive them in the TapRadar app. Names "
+"are not sent."
+msgstr "Kundennummern und Cashback-Gutscheine (Code, Wert, Gültigkeit, Status) werden an TapRadar übermittelt, damit Kunden sie in der TapRadar-App erhalten. Namen werden nicht übermittelt."
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_config_settings_view_form_tapradar
+msgid ""
+"Customer numbers and gift cards (code, value, validity, status) are sent to TapRadar.\n"
+"                                Names are not sent."
+msgstr "Kundennummern und Gutscheine (Code, Wert, Gültigkeit, Status) werden an TapRadar übermittelt.\n                                Namen werden nicht übermittelt."
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_preview_view_form
+msgid "Customers"
+msgstr "Kunden"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_config_settings_view_form_tapradar
+msgid ""
+"Customers scan it in the TapRadar app once to link their customer number."
+msgstr "Kunden scannen ihn einmal in der TapRadar-App, um ihre Kundennummer zu verknüpfen."
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_config_settings_view_form_tapradar
+msgid "Disconnect"
+msgstr "Trennen"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_config_settings_view_form_tapradar
+msgid "Disconnect TapRadar? Active cashback campaigns stop reaching the app."
+msgstr "TapRadar trennen? Aktive Cashback-Aktionen erreichen die App dann nicht mehr."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__display_name
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_event__display_name
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview__display_name
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview_line__display_name
+msgid "Display Name"
+msgstr "Anzeigename"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields.selection,name:tapradar_cashback.selection__tapradar_cashback_campaign__state__draft
+msgid "Draft"
+msgstr "Entwurf"
+
+#. module: tapradar_cashback
+#: model:ir.model.constraint,message:tapradar_cashback.constraint_tapradar_cashback_campaign_program_unique
+msgid "Each campaign needs its own gift card program."
+msgstr "Jede Cashback-Aktion braucht ein eigenes Geschenkkarten-Programm."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__send_email
+msgid "Email the gift card"
+msgstr "Gutschein per E-Mail senden"
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_company.py:0
+#, python-format
+msgid "Enter the integration key from your TapRadar business account."
+msgstr "Geben Sie den Integrationsschlüssel aus Ihrem TapRadar-Geschäftskonto ein."
+
+#. module: tapradar_cashback
+#: model_terms:ir.actions.act_window,help:tapradar_cashback.tapradar_cashback_action
+msgid ""
+"Every purchase during the campaign earns a personal gift card for the next "
+"purchase."
+msgstr "Jeder Einkauf während der Aktion bringt einen persönlichen Cashback-Gutschein für den nächsten Einkauf."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__excluded_categ_ids
+msgid "Excluded categories"
+msgstr "Ausgeschlossene Kategorien"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_event__external_id
+msgid "External"
+msgstr "Extern"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields.selection,name:tapradar_cashback.selection__tapradar_cashback_event__state__failed
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_event_view_search
+msgid "Failed"
+msgstr "Fehlgeschlagen"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields.selection,name:tapradar_cashback.selection__tapradar_cashback_campaign__state__done
+msgid "Finished"
+msgstr "Beendet"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__date_from
+msgid "First campaign day"
+msgstr "Erster Aktionstag"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__fixed_amount
+#: model:ir.model.fields.selection,name:tapradar_cashback.selection__tapradar_cashback_campaign__reward_type__fixed
+msgid "Fixed amount"
+msgstr "Fester Betrag"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__message_follower_ids
+msgid "Followers"
+msgstr "Follower"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Follower (Partner)"
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/campaign.py:0
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__card_ids
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_view_form
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_view_tree
+#, python-format
+msgid "Gift Cards"
+msgstr "Cashback-Gutscheine"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview_line__voucher_amount
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_view_form
+msgid "Gift card"
+msgstr "Cashback-Gutschein"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_preview_view_form
+msgid "Gift card preview"
+msgstr "Gutschein-Vorschau"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__program_id
+msgid "Gift card program"
+msgstr "Geschenkkarten-Programm"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__reward_type
+msgid "Gift card value"
+msgstr "Gutscheinwert"
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/campaign.py:0
+#, python-format
+msgid "Gift cards already exist for %s."
+msgstr "Für %s gibt es bereits Gutscheine."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview_line__eligible_amount
+msgid "Gross value"
+msgstr "Bruttowert"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__has_message
+msgid "Has Message"
+msgstr "Hat Nachricht"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__id
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_event__id
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview__id
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview_line__id
+msgid "ID"
+msgstr "ID"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_tapradar_cashback_campaign__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Falls markiert, erfordern neue Nachrichten Ihre Aufmerksamkeit."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_tapradar_cashback_campaign__message_has_error
+#: model:ir.model.fields,help:tapradar_cashback.field_tapradar_cashback_campaign__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Falls markiert, haben einige Nachrichten einen Zustellfehler."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__message_is_follower
+msgid "Is Follower"
+msgstr "Ist Follower"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__card_total
+msgid "Issued value"
+msgstr "Ausgegebener Wert"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_event__last_error
+msgid "Last Error"
+msgstr "Letzter Fehler"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__write_uid
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_event__write_uid
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview__write_uid
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview_line__write_uid
+msgid "Last Updated by"
+msgstr "Zuletzt aktualisiert von"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__write_date
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_event__write_date
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview__write_date
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview_line__write_date
+msgid "Last Updated on"
+msgstr "Zuletzt aktualisiert am"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__date_to
+msgid "Last campaign day"
+msgstr "Letzter Aktionstag"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_tapradar_cashback_campaign__valid_until
+msgid "Last day on which the campaign's gift cards can be used."
+msgstr "Letzter Tag, an dem die Gutscheine eingelöst werden können."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_tapradar_cashback_campaign__pos_config_ids
+msgid "Leave empty to include every Point of Sale of the company."
+msgstr "Leer lassen, um alle Kassen des Unternehmens einzubeziehen."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview__line_ids
+msgid "Line"
+msgstr "Zeile"
+
+#. module: tapradar_cashback
+#: model:ir.model,name:tapradar_cashback.model_loyalty_card
+msgid "Loyalty Coupon"
+msgstr "Treuegutschein"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__message_has_error
+msgid "Message Delivery error"
+msgstr "Zustellfehler"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__message_ids
+msgid "Messages"
+msgstr "Nachrichten"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__threshold_scope
+msgid "Minimum applies to"
+msgstr "Mindestwert gilt für"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__min_amount
+msgid "Minimum purchase"
+msgstr "Mindesteinkaufswert"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__name
+msgid "Name"
+msgstr "Name"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_event_view_search
+msgid "Not sent"
+msgstr "Nicht gesendet"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Anzahl Aktionen"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__message_has_error_counter
+msgid "Number of errors"
+msgstr "Anzahl Fehler"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_tapradar_cashback_campaign__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Anzahl Nachrichten, die eine Aktion erfordern"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_tapradar_cashback_campaign__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Anzahl Nachrichten mit Zustellfehler"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_view_form
+msgid ""
+"Once active, every paid POS purchase of a customer creates or updates the customer's\n"
+"                        gift card right away. It can only be used after the last campaign day."
+msgstr "Sobald aktiv, erstellt oder erhöht jeder bezahlte Kasseneinkauf eines Kunden\n                        sofort seinen Cashback-Gutschein. Er ist erst nach dem letzten Aktionstag einlösbar."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/campaign.py:0
+#, python-format
+msgid "Only active campaigns create gift cards."
+msgstr "Nur aktive Cashback-Aktionen erstellen Gutscheine."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/campaign.py:0
+#, python-format
+msgid "Only draft campaigns can be activated."
+msgstr "Nur Cashback-Aktionen im Entwurf können aktiviert werden."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_event__payload
+msgid "Payload"
+msgstr "Daten"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields.selection,name:tapradar_cashback.selection__tapradar_cashback_event__state__pending
+msgid "Pending"
+msgstr "Ausstehend"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields.selection,name:tapradar_cashback.selection__tapradar_cashback_campaign__threshold_scope__per_order
+msgid "Per purchase"
+msgstr "Pro Einkauf"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_tapradar_cashback_campaign__fixed_amount
+msgid ""
+"Per qualifying purchase, or once per customer if the minimum applies to the "
+"sum of all purchases."
+msgstr "Pro berechtigtem Einkauf, oder einmal pro Kunde, wenn der Mindestwert für die Summe aller Einkäufe gilt."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields.selection,name:tapradar_cashback.selection__tapradar_cashback_campaign__reward_type__percent
+msgid "Percentage of the purchase"
+msgstr "Prozent vom Einkauf"
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_company.py:0
+#, python-format
+msgid "Please agree to share the gift card data with TapRadar first."
+msgstr "Bitte stimmen Sie zuerst der Übermittlung der Gutscheindaten an TapRadar zu."
+
+#. module: tapradar_cashback
+#: model:ir.model,name:tapradar_cashback.model_pos_config
+msgid "Point of Sale Configuration"
+msgstr "Kassenkonfiguration"
+
+#. module: tapradar_cashback
+#: model:ir.model,name:tapradar_cashback.model_pos_order
+msgid "Point of Sale Orders"
+msgstr "Kassenaufträge"
+
+#. module: tapradar_cashback
+#: model:ir.model,name:tapradar_cashback.model_pos_session
+msgid "Point of Sale Session"
+msgstr "Kassensitzung"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__pos_config_ids
+msgid "Points of Sale"
+msgstr "Kassen"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview_line__preview_id
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_view_form
+msgid "Preview"
+msgstr "Vorschau"
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/campaign.py:0
+#, python-format
+msgid "Preview: %s"
+msgstr "Vorschau: %s"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_res_company__tapradar_receipt_qr
+#: model:ir.model.fields,help:tapradar_cashback.field_res_config_settings__tapradar_receipt_qr
+msgid ""
+"Print a QR code on POS receipts of customers with a customer number. "
+"Scanning it in the TapRadar app links the customer's account."
+msgstr "Einen QR-Code auf Kassenbons von Kunden mit Kundennummer drucken. Das Scannen in der TapRadar-App verknüpft das Kundenkonto."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_tapradar_cashback_campaign__excluded_categ_ids
+msgid ""
+"Products in these categories (e.g. bottle or crate deposits) do not count "
+"towards the gross value."
+msgstr "Produkte dieser Kategorien (z. B. Leergebinde / Pfand) zählen nicht zum Bruttowert."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview_line__order_count
+msgid "Purchases"
+msgstr "Einkäufe"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_config_settings_view_form_tapradar
+msgid "QR code on receipts"
+msgstr "QR-Code auf Kassenbons"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_event_view_tree
+msgid "Queued"
+msgstr "Eingereiht"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_view_form
+msgid "Recalculate gift cards"
+msgstr "Gutscheine neu berechnen"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_event_view_tree
+msgid "Retry"
+msgstr "Erneut senden"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields.selection,name:tapradar_cashback.selection__tapradar_cashback_campaign__rounding__euro_down
+msgid "Round down to whole units"
+msgstr "Auf ganze Euro abrunden"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__rounding
+msgid "Rounding"
+msgstr "Rundung"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "SMS-Zustellfehler"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_tapradar_cashback_campaign__send_email
+msgid ""
+"Send the gift card program's email when a customer's gift card is created."
+msgstr "Die E-Mail des Geschenkkarten-Programms senden, wenn der Gutschein eines Kunden erstellt wird."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields.selection,name:tapradar_cashback.selection__tapradar_cashback_event__state__sent
+msgid "Sent"
+msgstr "Gesendet"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_event__sent_at
+msgid "Sent At"
+msgstr "Gesendet am"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_company__tapradar_data_consent
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_config_settings__tapradar_data_consent
+msgid "Share gift card data with TapRadar"
+msgstr "Gutscheindaten mit TapRadar teilen"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__state
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_event__state
+msgid "State"
+msgstr "Status"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields.selection,name:tapradar_cashback.selection__tapradar_cashback_campaign__threshold_scope__per_customer
+msgid "Sum of all campaign purchases"
+msgstr "Summe aller Einkäufe der Aktion"
+
+#. module: tapradar_cashback
+#. odoo-javascript
+#: code:addons/tapradar_cashback/static/src/order_receipt.xml:0
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_config_settings_view_form_tapradar
+#, python-format
+msgid "TapRadar"
+msgstr "TapRadar"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_company__tapradar_receipt_qr
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_config_settings__tapradar_receipt_qr
+msgid "TapRadar QR code on receipts"
+msgstr "TapRadar-QR-Code auf Kassenbons"
+
+#. module: tapradar_cashback
+#: model:ir.actions.act_window,name:tapradar_cashback.tapradar_cashback_event_action
+#: model:ir.ui.menu,name:tapradar_cashback.tapradar_cashback_event_menu
+msgid "TapRadar Sync"
+msgstr "TapRadar-Synchronisierung"
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/tapradar_api.py:0
+#, python-format
+msgid "TapRadar answered with an error (%(status)s): %(error)s"
+msgstr "TapRadar hat mit einem Fehler geantwortet (%(status)s): %(error)s"
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_company.py:0
+#, python-format
+msgid "TapRadar answered without connection details."
+msgstr "TapRadar hat ohne Verbindungsdaten geantwortet."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/tapradar_api.py:0
+#, python-format
+msgid "TapRadar cannot be reached: %s"
+msgstr "TapRadar ist nicht erreichbar: %s"
+
+#. module: tapradar_cashback
+#: model:ir.model,name:tapradar_cashback.model_tapradar_cashback_event
+msgid "TapRadar gift card update"
+msgstr "TapRadar-Gutscheinaktualisierung"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_company__tapradar_integration_id
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_config_settings__tapradar_integration_id
+msgid "TapRadar integration"
+msgstr "TapRadar-Integration"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_company__tapradar_api_key
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_config_settings__tapradar_api_key
+msgid "TapRadar integration key"
+msgstr "TapRadar-Integrationsschlüssel"
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/tapradar_api.py:0
+#, python-format
+msgid ""
+"TapRadar rejected the integration key. Create a new key in your TapRadar "
+"business account."
+msgstr "TapRadar hat den Integrationsschlüssel abgelehnt. Erstellen Sie einen neuen Schlüssel in Ihrem TapRadar-Geschäftskonto."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_company__tapradar_shop_name
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_config_settings__tapradar_shop_name
+msgid "TapRadar shop"
+msgstr "TapRadar-Geschäft"
+
+#. module: tapradar_cashback
+#: model:ir.actions.server,name:tapradar_cashback.ir_cron_tapradar_send_ir_actions_server
+msgid "TapRadar: send gift card updates"
+msgstr "TapRadar: Gutscheinaktualisierungen senden"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_company__tapradar_link_base
+msgid "Tapradar Link Base"
+msgstr "TapRadar-Link-Basis"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_company__tapradar_link_secret
+msgid "Tapradar Link Secret"
+msgstr "TapRadar-Link-Schlüssel"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_partner__tapradar_link_url
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_users__tapradar_link_url
+msgid "Tapradar Link Url"
+msgstr "TapRadar-Link"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_tapradar_cashback_campaign__tz
+msgid "The campaign days start and end at midnight in this timezone."
+msgstr "Die Aktionstage beginnen und enden um Mitternacht in dieser Zeitzone."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/campaign.py:0
+#, python-format
+msgid "The campaign needs a gift card program."
+msgstr "Die Cashback-Aktion braucht ein Geschenkkarten-Programm."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/campaign.py:0
+#, python-format
+msgid "The cashback must be between 0 and 100 %."
+msgstr "Der Cashback muss zwischen 0 und 100 % liegen."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_tapradar_cashback_campaign__valid_from
+msgid "The day after the last campaign day."
+msgstr "Der Tag nach dem letzten Aktionstag."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/campaign.py:0
+#, python-format
+msgid "The fixed amount must be greater than zero."
+msgstr "Der feste Betrag muss größer als null sein."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/campaign.py:0
+#, python-format
+msgid "The gift cards must stay valid after the last campaign day."
+msgstr "Die Gutscheine müssen nach dem letzten Aktionstag gültig sein."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/campaign.py:0
+#, python-format
+msgid "The last campaign day cannot be before the first one."
+msgstr "Der letzte Aktionstag darf nicht vor dem ersten liegen."
+
+#. module: tapradar_cashback
+#: model:ir.model.constraint,message:tapradar_cashback.constraint_tapradar_cashback_campaign_min_amount_positive
+msgid "The minimum purchase cannot be negative."
+msgstr "Der Mindesteinkaufswert darf nicht negativ sein."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/campaign.py:0
+#, python-format
+msgid "The program cannot be changed once gift cards exist."
+msgstr "Das Programm kann nicht mehr geändert werden, sobald Gutscheine existieren."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/campaign.py:0
+#, python-format
+msgid ""
+"This gift card can only be used from %(date)s, after the cashback campaign."
+msgstr "Dieser Cashback-Gutschein ist erst ab %(date)s einlösbar, nach der Aktion."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__tz
+msgid "Timezone"
+msgstr "Zeitzone"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields.selection,name:tapradar_cashback.selection__tapradar_cashback_campaign__rounding__cent
+msgid "To the cent"
+msgstr "Auf den Cent"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_preview_view_form
+msgid "Total"
+msgstr "Summe"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_preview__total_amount
+msgid "Total gift card value"
+msgstr "Gesamter Gutscheinwert"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_view_form
+msgid "Usable"
+msgstr "Einlösbar"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__valid_from
+msgid "Valid From"
+msgstr "Gültig ab"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__valid_until
+msgid "Valid until"
+msgstr "Gültig bis"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_campaign__website_message_ids
+msgid "Website Messages"
+msgstr "Website-Nachrichten"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_tapradar_cashback_campaign__website_message_ids
+msgid "Website communication history"
+msgstr "Website-Kommunikationsverlauf"
+
+#. module: tapradar_cashback
+#. odoo-javascript
+#: code:addons/tapradar_cashback/static/src/order_receipt.xml:0
+#, python-format
+msgid "Your cashback gift cards in the TapRadar app:"
+msgstr "Ihre Cashback-Gutscheine in der TapRadar-App:"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_tapradar_cashback_campaign__percent
+msgid "e.g. 5 or 10"
+msgstr "z. B. 5 oder 10"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.tapradar_cashback_view_form
+msgid "e.g. Savings Days May 2026"
+msgstr "z. B. Cashback Mai 2026"
+
+#. module: tapradar_cashback
+#. odoo-javascript
+#: code:addons/tapradar_cashback/static/src/order_receipt.xml:0
+#, python-format
+msgid "scan this code once in the app."
+msgstr "diesen Code einmal in der App scannen."
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_config_settings_view_form_tapradar
+msgid "trk_..."
+msgstr "trk_..."

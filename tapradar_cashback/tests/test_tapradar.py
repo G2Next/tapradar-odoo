@@ -101,13 +101,13 @@ class TestTapradarConnection(CashbackCommon):
             Event._cron_send()
         self.assertEqual((event.state, event.last_error), ("failed", "invalid_code"))
 
-    def test_customers_without_number_are_not_sent(self):
+    def test_customers_without_number_use_the_odoo_id(self):
         self.customer.ref = False
         campaign = self._campaign()
         self._order([(self.meat, 5)], self.customer)
         self.assertTrue(campaign.card_ids)
-        self.assertFalse(queued(self.env))
-        self.assertFalse(self.customer.tapradar_link_url)
+        self.assertEqual([p["customer_ref"] for p in queued(self.env)], ["odoo-%s" % self.customer.id])
+        self.assertIn("c=odoo-%s" % self.customer.id, self.customer.tapradar_link_url)
 
     def test_receipt_qr_link(self):
         url = self.customer.tapradar_link_url
@@ -125,3 +125,67 @@ class TestTapradarConnection(CashbackCommon):
         self.env.company.tapradar_receipt_qr = False
         self.customer.invalidate_recordset(["tapradar_link_url"])
         self.assertFalse(self.customer.tapradar_link_url)
+
+
+@tagged("post_install", "-at_install", "tapradar")
+class TestTapradarCheckoutCode(CashbackCommon):
+    def test_link_with_code_from_the_app(self):
+        with tapradar_api(lambda payload: (200, {"ok": True, "gift_cards": 1})) as sent:
+            self.customer.tapradar_link_code = " TR-K7M2-9QPA "
+        self.assertEqual(sent[0]["payload"], {"type": "link_customer", "code": "TR-K7M2-9QPA", "customer_ref": "K-1042"})
+        self.env.flush_all()
+        self.env.invalidate_all()  # read back from the database, not the cache
+        self.assertTrue(self.customer.tapradar_linked)
+        self.assertFalse(self.customer.tapradar_link_code)  # never stored
+        self.assertIn("tapradar_linked", self.pos_session._loader_params_res_partner()["search_params"]["fields"])
+
+    def test_contact_person_links_the_company(self):
+        contact = self.env["res.partner"].create({"name": "Kasse Kontakt", "parent_id": self.customer.id})
+        with tapradar_api(lambda payload: (200, {"ok": True, "gift_cards": 0})) as sent:
+            contact.tapradar_link_code = "TR-K7M2-9QPA"
+        self.assertEqual(sent[0]["payload"]["customer_ref"], "K-1042")
+        self.assertTrue(self.customer.tapradar_linked)
+
+    def test_link_errors_are_shown_to_the_cashier(self):
+        cases = {
+            "invalid_code": "not valid",
+            "code_expired": "expired",
+            "customer_ref_taken": "already linked with another TapRadar account",
+            "already_linked_other": "already linked with another customer",
+            "something_new": "could not link",
+        }
+        for error, message in cases.items():
+            with self.subTest(error=error), tapradar_api(lambda payload, e=error: (200, {"ok": False, "error": e})):
+                with self.assertRaisesRegex(UserError, message):
+                    self.customer.tapradar_link_code = "TR-K7M2-9QPA"
+        self.assertFalse(self.customer.tapradar_linked)
+
+        with tapradar_api(lambda payload: (429, {"ok": False, "error": "rate_limited"})):
+            with self.assertRaisesRegex(UserError, "Too many attempts"):
+                self.customer.tapradar_link_code = "TR-K7M2-9QPA"
+
+    def test_empty_code_and_disconnected_shop(self):
+        with tapradar_api() as sent:
+            self.customer.write({"tapradar_link_code": "  ", "phone": "123"})
+        self.assertFalse(sent)
+        self.env.company.action_tapradar_disconnect()
+        with self.assertRaisesRegex(UserError, "Connect TapRadar first"):
+            self.customer.tapradar_link_code = "TR-K7M2-9QPA"
+
+    def test_new_customer_from_the_pos_editor(self):
+        with tapradar_api(lambda payload: (200, {"ok": True, "gift_cards": 0})) as sent:
+            partner_id = self.env["res.partner"].create_from_ui({
+                "id": False, "name": "Neukunde", "tapradar_link_code": "TR-K7M2-9QPA",
+            })
+        self.env.flush_all()
+        self.env.invalidate_all()
+        partner = self.env["res.partner"].browse(partner_id)
+        self.assertEqual(sent[0]["payload"]["customer_ref"], "odoo-%s" % partner.id)
+        self.assertTrue(partner.tapradar_linked)
+
+        # A failed link does not save the customer half-way.
+        count = self.env["res.partner"].search_count([])
+        with tapradar_api(lambda payload: (200, {"ok": False, "error": "invalid_code"})):
+            with self.assertRaises(UserError), self.env.cr.savepoint():
+                self.env["res.partner"].create_from_ui({"id": False, "name": "Zweiter", "tapradar_link_code": "TR-AAAA"})
+        self.assertEqual(self.env["res.partner"].search_count([]), count)

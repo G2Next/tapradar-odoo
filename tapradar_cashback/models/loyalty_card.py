@@ -31,7 +31,7 @@ class LoyaltyCard(models.Model):
         valid_until = self.expiration_date or campaign.valid_until
         return {
             "external_id": str(self.id),
-            "customer_ref": (self.partner_id.commercial_partner_id.ref or "").strip(),
+            "customer_ref": self.partner_id._tapradar_customer_ref(),
             "code": self.code,
             "title": campaign.name,
             "balance": 0.0 if deleted else round(max(self.points, 0.0), 2),
@@ -46,7 +46,7 @@ class LoyaltyCard(models.Model):
         payloads = [
             (card.tapradar_campaign_id.company_id, card, card._tapradar_payload(deleted=deleted))
             for card in self.sudo()
-            if card.tapradar_campaign_id and card.partner_id.commercial_partner_id.ref
+            if card.tapradar_campaign_id and card.partner_id
         ]
         if payloads:
             self.env["tapradar.cashback.event"]._enqueue(payloads)

@@ -6,5 +6,5 @@ class PosSession(models.Model):
 
     def _loader_params_res_partner(self):
         params = super()._loader_params_res_partner()
-        params["search_params"]["fields"].append("tapradar_link_url")
+        params["search_params"]["fields"] += ["tapradar_link_url", "tapradar_linked"]
         return params

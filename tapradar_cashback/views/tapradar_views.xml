@@ -40,6 +40,25 @@
         </field>
     </record>
 
+    <record id="res_partner_view_form_tapradar" model="ir.ui.view">
+        <field name="name">res.partner.form.tapradar.cashback</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='ref']" position="after">
+                <field name="tapradar_linked" invisible="1"/>
+                <field name="tapradar_link_code" placeholder="TR-XXXX-XXXX"
+                       invisible="tapradar_linked or not is_company and parent_id"/>
+                <div class="o_td_label" invisible="not tapradar_linked">
+                    <span class="o_form_label">TapRadar</span>
+                </div>
+                <div invisible="not tapradar_linked">
+                    <i class="fa fa-check text-success"/> Linked with TapRadar
+                </div>
+            </xpath>
+        </field>
+    </record>
+
     <record id="tapradar_cashback_event_view_tree" model="ir.ui.view">
         <field name="name">tapradar.cashback.event.tree</field>
         <field name="model">tapradar.cashback.event</field>

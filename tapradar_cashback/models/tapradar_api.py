@@ -31,6 +31,8 @@ def post(env, api_key, payload):
         raise UserError(_("TapRadar cannot be reached: %s", error)) from error
     if response.status_code == 401:
         raise UserError(_("TapRadar rejected the integration key. Create a new key in your TapRadar business account."))
+    if response.status_code == 429:
+        raise UserError(_("Too many attempts. Please wait a few minutes."))
     try:
         body = response.json()
     except ValueError:

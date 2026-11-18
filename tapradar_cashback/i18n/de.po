@@ -920,3 +920,135 @@ msgstr "diesen Code einmal in der App scannen."
 #: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_config_settings_view_form_tapradar
 msgid "trk_..."
 msgstr "trk_..."
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_partner_view_form_tapradar
+msgid "<i class=\"fa fa-check text-success\"/> Linked with TapRadar"
+msgstr "<i class=\"fa fa-check text-success\"/> Mit TapRadar verbunden"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_partner_view_form_tapradar
+msgid "<span class=\"o_form_label\">TapRadar</span>"
+msgstr "<span class=\"o_form_label\">TapRadar</span>"
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_partner.py:0
+#, python-format
+msgid ""
+"Connect TapRadar first: Point of Sale > Configuration > Settings > TapRadar."
+msgstr "Verbinden Sie zuerst TapRadar: Kasse > Konfiguration > Einstellungen > TapRadar."
+
+#. module: tapradar_cashback
+#. odoo-javascript
+#: code:addons/tapradar_cashback/static/src/partner_editor.xml:0
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_partner__tapradar_linked
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_users__tapradar_linked
+#, python-format
+msgid "Linked with TapRadar"
+msgstr "Mit TapRadar verbunden"
+
+#. module: tapradar_cashback
+#. odoo-javascript
+#: code:addons/tapradar_cashback/static/src/partner_editor.xml:0
+#, python-format
+msgid "Scan the code from the customer's TapRadar app, then save."
+msgstr "Code aus der TapRadar-App des Kunden scannen, dann speichern."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_res_partner__tapradar_link_code
+#: model:ir.model.fields,help:tapradar_cashback.field_res_users__tapradar_link_code
+msgid ""
+"Scan the code the customer shows in the TapRadar app (My TapRadar code). It "
+"links this customer with the TapRadar account, and the cashback gift cards "
+"appear in the app."
+msgstr "Scannen Sie den Code, den der Kunde in der TapRadar-App zeigt (Mein TapRadar-Code). Damit wird dieser Kunde mit dem TapRadar-Konto verbunden, und die Cashback-Gutscheine erscheinen in der App."
+
+#. module: tapradar_cashback
+#. odoo-javascript
+#: code:addons/tapradar_cashback/static/src/partner_editor.xml:0
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_partner_view_form_tapradar
+#, python-format
+msgid "TR-XXXX-XXXX"
+msgstr "TR-XXXX-XXXX"
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_partner.py:0
+#, python-format
+msgid "TapRadar could not link this customer (%s)."
+msgstr "TapRadar konnte diesen Kunden nicht verbinden (%s)."
+
+#. module: tapradar_cashback
+#. odoo-javascript
+#: code:addons/tapradar_cashback/static/src/partner_editor.xml:0
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_partner__tapradar_link_code
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_users__tapradar_link_code
+#, python-format
+msgid "TapRadar-Code"
+msgstr "TapRadar-Code"
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_partner.py:0
+#, python-format
+msgid ""
+"The TapRadar integration key is no longer valid. Create a new key in your "
+"TapRadar business account."
+msgstr "Der TapRadar-Integrationsschlüssel ist nicht mehr gültig. Erstellen Sie einen neuen Schlüssel in Ihrem TapRadar-Geschäftskonto."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_partner.py:0
+#, python-format
+msgid "The customer number is too long for TapRadar (max. 64 characters)."
+msgstr "Die Kundennummer ist für TapRadar zu lang (max. 64 Zeichen)."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_partner.py:0
+#, python-format
+msgid ""
+"This TapRadar account is already linked with another customer of your shop."
+msgstr "Dieses TapRadar-Konto ist bereits mit einem anderen Kunden Ihres Geschäfts verbunden."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_partner.py:0
+#, python-format
+msgid ""
+"This TapRadar code has expired. Ask the customer to open a new code in the "
+"app."
+msgstr "Dieser TapRadar-Code ist abgelaufen. Bitten Sie den Kunden, in der App einen neuen Code zu öffnen."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_partner.py:0
+#, python-format
+msgid ""
+"This TapRadar code is not valid. Ask the customer to open a new code in the "
+"app."
+msgstr "Dieser TapRadar-Code ist ungültig. Bitten Sie den Kunden, in der App einen neuen Code zu öffnen."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_partner.py:0
+#, python-format
+msgid "This customer is already linked with another TapRadar account."
+msgstr "Dieser Kunde ist bereits mit einem anderen TapRadar-Konto verbunden."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_partner.py:0
+#: code:addons/tapradar_cashback/models/tapradar_api.py:0
+#, python-format
+msgid "Too many attempts. Please wait a few minutes."
+msgstr "Zu viele Versuche. Bitte warten Sie einige Minuten."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_res_partner__tapradar_linked
+#: model:ir.model.fields,help:tapradar_cashback.field_res_users__tapradar_linked
+msgid "Set when the customer was linked with a TapRadar code at this company."
+msgstr ""
+"Wird gesetzt, wenn der Kunde in diesem Unternehmen mit einem TapRadar-Code "
+"verbunden wurde."

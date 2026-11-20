@@ -268,6 +268,9 @@ class TestTapradarMemberCard(CashbackCommon):
         with tapradar_api(lambda payload: (200, {"ok": False, "error": "already_linked_other"})):
             with self.assertRaisesRegex(UserError, "already linked with another customer"):
                 self.customer.tapradar_link_member_card(self.CARD)
+        with tapradar_api(lambda payload: (200, {"ok": False, "error": "platinum_required"})):
+            with self.assertRaisesRegex(UserError, "Platinum plan"):
+                self.customer.tapradar_link_member_card(self.CARD)
         self._reload()
         self.assertFalse(self.customer.tapradar_card)
         self.assertFalse(self.customer.tapradar_linked)

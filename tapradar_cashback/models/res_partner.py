@@ -13,6 +13,7 @@ LINK_ERRORS = {
     "invalid_customer_ref": _lt("The customer number is too long for TapRadar (max. 64 characters)."),
     "rate_limited": _lt("Too many attempts. Please wait a few minutes."),
     "integration_inactive": _lt("The TapRadar integration key is no longer valid. Create a new key in your TapRadar business account."),
+    "platinum_required": _lt("TapRadar cards are part of the TapRadar Platinum plan. Upgrade your TapRadar business account to link cards."),
     "invalid_card": _lt("This TapRadar card is not known for your shop. The customer can add your shop in the TapRadar app under Cards."),
 }
 

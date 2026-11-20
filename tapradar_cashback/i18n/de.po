@@ -1103,3 +1103,14 @@ msgstr "Diese TapRadar-Karte ist noch nicht verbunden. Wähle den Kunden aus, de
 #, python-format
 msgid "To link again, scan the TapRadar card or a new code from the customer's TapRadar app, then save."
 msgstr "Zum erneuten Verbinden die TapRadar-Karte oder einen neuen Code aus der TapRadar-App des Kunden scannen, dann speichern."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_partner.py:0
+#, python-format
+msgid ""
+"TapRadar cards are part of the TapRadar Platinum plan. Upgrade your TapRadar"
+" business account to link cards."
+msgstr ""
+"TapRadar-Karten sind Teil des TapRadar-Platinum-Tarifs. Wechsle in deinem "
+"TapRadar-Geschäftskonto zu Platinum, um Karten zu verbinden."

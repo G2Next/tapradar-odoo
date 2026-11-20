@@ -88,11 +88,17 @@ class LoyaltyCard(models.Model):
 
     def _tapradar_enqueue_loyalty(self, deleted=False, force=False):
         """`force`: also for shops that turned it off (to hide the points in the app)."""
+        self._tapradar_queue_loyalty([
+            (card, card._tapradar_loyalty_payload(deleted=deleted))
+            for card in self.sudo()._tapradar_loyalty_cards()
+        ], force=force)
+
+    def _tapradar_queue_loyalty(self, cards_and_payloads, force=False):
         payloads = []
-        for card in self.sudo()._tapradar_loyalty_cards():
+        for card, payload in cards_and_payloads:
             company = card.company_id or self.env.company
             if company.tapradar_loyalty or force:
-                payloads.append((company, card, card._tapradar_loyalty_payload(deleted=deleted)))
+                payloads.append((company, card, payload))
         if payloads:
             self.env["tapradar.cashback.event"]._enqueue(payloads, kind="loyalty")
 
@@ -104,9 +110,18 @@ class LoyaltyCard(models.Model):
         return cards
 
     def write(self, vals):
+        # A card that loses its customer (or stops being a loyalty card) is no
+        # longer sent; hide it under the customer number TapRadar knows it by.
+        hidden = []
+        if {"partner_id", "program_id", "tapradar_campaign_id"} & set(vals):
+            hidden = [(card, card._tapradar_loyalty_payload(deleted=True))
+                      for card in self.sudo()._tapradar_loyalty_cards()]
         res = super().write(vals)
         if TRACKED_FIELDS & set(vals):
             self.filtered("tapradar_campaign_id")._tapradar_enqueue()
+        if hidden:
+            still = self.sudo()._tapradar_loyalty_cards()
+            self._tapradar_queue_loyalty([(card, payload) for card, payload in hidden if card not in still])
         if LOYALTY_FIELDS & set(vals):
             self._tapradar_enqueue_loyalty()
         return res

@@ -6,17 +6,25 @@ import { ErrorPopup } from "@point_of_sale/app/errors/popups/error_popup";
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
 
-// TapRadar shop card from the customer app ("Karten"), e.g. TRK7M29QPAK3X.
-const MEMBER_CARD = /^TRK[0-9ABCDEFGHJKMNPQRSTVWXYZ]{10}$/;
+// TapRadar shop card from the customer app ("Karten"): the card number
+// (TRK + 10 characters) followed by a 6-digit code that changes every 30 s,
+// e.g. TRK7M29QPAK3X482913. A bare card number (photo, screenshot of an old
+// build) is recognised so the cashier gets a clear message.
+const MEMBER_CARD = /^(TRK[0-9ABCDEFGHJKMNPQRSTVWXYZ]{10})([0-9]{6})?$/;
+// How long a customer chosen for a new card is remembered when its code
+// expired before the link went through (the cashier just scans again).
+const PENDING_MS = 3 * 60 * 1000;
 
 function memberCard(code) {
-    const value = String(code?.code || "").replace(/\s/g, "").toUpperCase();
-    return MEMBER_CARD.test(value) ? value : null;
+    const value = String(code?.code || "").replace(/[\s-]/g, "").toUpperCase();
+    const match = MEMBER_CARD.exec(value);
+    return match ? { card: match[1], scanned: value, live: Boolean(match[2]) } : null;
 }
 
-// Scanning a TapRadar card selects its customer. An unknown card asks which
-// customer it belongs to and links it through TapRadar. Cards are recognised
-// whatever the barcode nomenclature makes of them (product or customer).
+// Scanning a TapRadar card selects its customer once TapRadar confirmed the
+// live code, so a screenshot cannot be used to act as that customer. An
+// unknown card asks which customer it belongs to and links it. Cards are
+// recognised whatever the barcode nomenclature makes of them.
 patch(ProductScreen.prototype, {
     async _barcodeProductAction(code) {
         const card = memberCard(code);
@@ -26,25 +34,53 @@ patch(ProductScreen.prototype, {
         const card = memberCard(code);
         return card ? this._tapradarCardAction(card) : super._barcodePartnerAction(...arguments);
     },
-    async _tapradarPartnerByCard(card) {
-        let partner = Object.values(this.pos.db.partner_by_id).find((p) => p.tapradar_card === card);
-        if (!partner) {
-            const ids = await this.orm.search("res.partner", [["tapradar_card", "=", card]], { limit: 1 });
-            if (ids.length) {
-                await this.pos._loadPartners(ids);
-                partner = this.pos.db.get_partner_by_id(ids[0]);
-            }
+    _tapradarError(error) {
+        const message = error?.data?.message;
+        if (!message) {
+            throw error;
         }
-        return partner;
+        return this.popup.add(ErrorPopup, { title: _t("TapRadar"), body: message });
+    },
+    async _tapradarSelect(partnerId) {
+        await this.pos._loadPartners([partnerId]);
+        const partner = this.pos.db.get_partner_by_id(partnerId);
+        if (partner && this.currentOrder.get_partner() !== partner) {
+            this.currentOrder.set_partner(partner);
+        }
+    },
+    async _tapradarLink(partnerId, card) {
+        try {
+            await this.orm.call("res.partner", "tapradar_link_member_card", [[partnerId], card.scanned]);
+        } catch (error) {
+            // Remember the choice: scanning the card again links it right away.
+            this._tapradarPending = { card: card.card, partnerId, until: Date.now() + PENDING_MS };
+            return this._tapradarError(error);
+        }
+        this._tapradarPending = null;
+        await this._tapradarSelect(partnerId);
     },
     async _tapradarCardAction(card) {
-        const order = this.currentOrder;
-        const known = await this._tapradarPartnerByCard(card);
-        if (known) {
-            if (order.get_partner() !== known) {
-                order.set_partner(known);
-            }
-            return;
+        if (!card.live) {
+            return this.popup.add(ErrorPopup, {
+                title: _t("TapRadar"),
+                body: _t(
+                    "Scan the live TapRadar card in the customer's app. A photo or screenshot of the card does not work."
+                ),
+            });
+        }
+        let partnerId;
+        try {
+            partnerId = await this.orm.call("res.partner", "tapradar_scan_member_card", [card.scanned]);
+        } catch (error) {
+            return this._tapradarError(error);
+        }
+        if (partnerId) {
+            return this._tapradarSelect(partnerId);
+        }
+
+        const pending = this._tapradarPending;
+        if (pending && pending.card === card.card && pending.until > Date.now()) {
+            return this._tapradarLink(pending.partnerId, card);
         }
         const { confirmed } = await this.popup.add(ConfirmPopup, {
             title: _t("New TapRadar card"),
@@ -57,23 +93,10 @@ patch(ProductScreen.prototype, {
             return;
         }
         const { confirmed: picked, payload: chosen } = await this.pos.showTempScreen("PartnerListScreen", {
-            partner: order.get_partner(),
+            partner: this.currentOrder.get_partner(),
         });
-        if (!picked || !chosen) {
-            return;
+        if (picked && chosen) {
+            return this._tapradarLink(chosen.id, card);
         }
-        let partnerId;
-        try {
-            partnerId = await this.orm.call("res.partner", "tapradar_link_member_card", [[chosen.id], card]);
-        } catch (error) {
-            const message = error?.data?.message;
-            if (!message) {
-                throw error;
-            }
-            return this.popup.add(ErrorPopup, { title: _t("TapRadar"), body: message });
-        }
-        // Reload so the card number and "Linked with TapRadar" are known offline too.
-        await this.pos._loadPartners([...new Set([chosen.id, partnerId])]);
-        order.set_partner(this.pos.db.get_partner_by_id(chosen.id));
     },
 });

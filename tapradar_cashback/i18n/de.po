@@ -1114,3 +1114,19 @@ msgid ""
 msgstr ""
 "TapRadar-Karten sind Teil des TapRadar-Platinum-Tarifs. Wechsle in deinem "
 "TapRadar-Geschäftskonto zu Platinum, um Karten zu verbinden."
+
+#. module: tapradar_cashback
+#. odoo-javascript
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_partner.py:0
+#: code:addons/tapradar_cashback/static/src/member_card.js:0
+#, python-format
+msgid "Scan the live TapRadar card in the customer's app. A photo or screenshot of the card does not work."
+msgstr "Bitte die TapRadar-Karte direkt in der App des Kunden scannen. Ein Foto oder Screenshot der Karte funktioniert nicht."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_partner.py:0
+#, python-format
+msgid "The code of this TapRadar card has expired. Scan the card in the app again."
+msgstr "Der Code dieser TapRadar-Karte ist abgelaufen. Bitte die Karte in der App erneut scannen."

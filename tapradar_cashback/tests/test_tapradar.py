@@ -236,6 +236,7 @@ class TestTapradarCheckoutCode(CashbackCommon):
 @tagged("post_install", "-at_install", "tapradar")
 class TestTapradarMemberCard(CashbackCommon):
     CARD = "TRK7M29QPAK3X"
+    SCANNED = "TRK7M29QPAK3X482913"  # card number + current 6-digit code
 
     def _reload(self):
         self.env.flush_all()
@@ -243,10 +244,10 @@ class TestTapradarMemberCard(CashbackCommon):
 
     def test_card_scanned_into_the_code_field(self):
         with tapradar_api(lambda payload: (200, {"ok": True, "gift_cards": 0})) as sent:
-            self.customer.tapradar_link_code = " trk7m29 qpak3x "
-        self.assertEqual(sent[0]["payload"], {"type": "link_member_card", "card": self.CARD, "customer_ref": "K-1042"})
+            self.customer.tapradar_link_code = " trk7m29 qpak3x-482 913 "
+        self.assertEqual(sent[0]["payload"], {"type": "link_member_card", "card": self.SCANNED, "customer_ref": "K-1042"})
         self._reload()
-        self.assertEqual(self.customer.tapradar_card, self.CARD)
+        self.assertEqual(self.customer.tapradar_card, self.CARD)  # stored without the code
         self.assertTrue(self.customer.tapradar_linked)
         self.assertIn("tapradar_card", self.pos_session._loader_params_res_partner()["search_params"]["fields"])
 
@@ -254,23 +255,51 @@ class TestTapradarMemberCard(CashbackCommon):
         other = self.env["res.partner"].create({"name": "Vorher", "tapradar_card": self.CARD})
         contact = self.env["res.partner"].create({"name": "Kasse Kontakt", "parent_id": self.customer.id})
         with tapradar_api(lambda payload: (200, {"ok": True, "gift_cards": 2})) as sent:
-            partner_id = contact.tapradar_link_member_card(self.CARD)
+            partner_id = contact.tapradar_link_member_card(self.SCANNED)
         self.assertEqual(partner_id, self.customer.id)
         self.assertEqual(sent[0]["payload"]["customer_ref"], "K-1042")
         self._reload()
         self.assertEqual(self.customer.tapradar_card, self.CARD)
         self.assertFalse(other.tapradar_card)
 
+    def test_scan_checks_the_live_code_with_tapradar(self):
+        Partner = self.env["res.partner"]
+        # Unknown card: no request, the till asks for the customer.
+        with tapradar_api() as sent:
+            self.assertFalse(Partner.tapradar_scan_member_card(self.SCANNED))
+        self.assertFalse(sent)
+
+        self.customer.tapradar_card = self.CARD
+        with tapradar_api(lambda payload: (200, {"ok": True, "linked": True})) as sent:
+            self.assertEqual(Partner.tapradar_scan_member_card(self.SCANNED.lower()), self.customer.id)
+        self.assertEqual(sent[0]["payload"], {"type": "check_member_card", "card": self.SCANNED})
+        self._reload()
+        self.assertTrue(self.customer.tapradar_linked)
+
+        # A screenshot: the code is too old, the customer is not selected.
+        with tapradar_api(lambda payload: (200, {"ok": False, "error": "code_expired"})):
+            with self.assertRaisesRegex(UserError, "code of this TapRadar card has expired"):
+                Partner.tapradar_scan_member_card(self.SCANNED)
+        # Only the printed number: TapRadar asks for the live card.
+        with tapradar_api(lambda payload: (200, {"ok": False, "error": "code_required"})) as sent:
+            with self.assertRaisesRegex(UserError, "screenshot of the card does not work"):
+                Partner.tapradar_scan_member_card(self.CARD)
+        self.assertEqual(sent[0]["payload"]["card"], self.CARD)
+
     def test_card_errors_are_shown_to_the_cashier(self):
-        with tapradar_api(lambda payload: (200, {"ok": False, "error": "invalid_card"})):
-            with self.assertRaisesRegex(UserError, "not known for your shop"):
-                self.customer.tapradar_link_member_card(self.CARD)
-        with tapradar_api(lambda payload: (200, {"ok": False, "error": "already_linked_other"})):
-            with self.assertRaisesRegex(UserError, "already linked with another customer"):
-                self.customer.tapradar_link_member_card(self.CARD)
-        with tapradar_api(lambda payload: (200, {"ok": False, "error": "platinum_required"})):
-            with self.assertRaisesRegex(UserError, "Platinum plan"):
-                self.customer.tapradar_link_member_card(self.CARD)
+        for error, message in [
+            ("invalid_card", "not known for your shop"),
+            ("already_linked_other", "already linked with another customer"),
+            ("platinum_required", "Platinum plan"),
+            ("code_expired", "code of this TapRadar card has expired"),
+        ]:
+            with tapradar_api(lambda payload, error=error: (200, {"ok": False, "error": error})):
+                with self.assertRaisesRegex(UserError, message):
+                    self.customer.tapradar_link_member_card(self.SCANNED)
+        # The one-time code keeps its own wording.
+        with tapradar_api(lambda payload: (200, {"ok": False, "error": "code_expired"})):
+            with self.assertRaisesRegex(UserError, "This TapRadar code has expired"):
+                self.customer.tapradar_link_code = "TR-K7M2-9QPA"
         self._reload()
         self.assertFalse(self.customer.tapradar_card)
         self.assertFalse(self.customer.tapradar_linked)

@@ -15,16 +15,36 @@ LINK_ERRORS = {
     "integration_inactive": _lt("The TapRadar integration key is no longer valid. Create a new key in your TapRadar business account."),
     "platinum_required": _lt("TapRadar cards are part of the TapRadar Platinum plan. Upgrade your TapRadar business account to link cards."),
     "invalid_card": _lt("This TapRadar card is not known for your shop. The customer can add your shop in the TapRadar app under Cards."),
+    "code_required": _lt("Scan the live TapRadar card in the customer's app. A photo or screenshot of the card does not work."),
 }
 
-# Permanent TapRadar shop card from the customer app ("Karten"), e.g. TRK7M29QPAK3X.
-MEMBER_CARD = re.compile(r"^TRK[0-9ABCDEFGHJKMNPQRSTVWXYZ]{10}$")
+# TapRadar answers for the shop card that need their own wording.
+CARD_ERRORS = {
+    "code_expired": _lt("The code of this TapRadar card has expired. Scan the card in the app again."),
+}
+
+# TapRadar shop card from the customer app ("Karten"): the card number
+# (TRK + 10 characters) followed by a 6-digit code that changes every 30 s.
+MEMBER_CARD = re.compile(r"^(TRK[0-9ABCDEFGHJKMNPQRSTVWXYZ]{10})([0-9]{6})?$")
 
 
-def normalize_member_card(value):
-    """The card number when `value` is a TapRadar shop card, else None."""
-    card = re.sub(r"\s", "", value or "").upper()
-    return card if MEMBER_CARD.match(card) else None
+def parse_member_card(value):
+    """(card number, scanned value) for a TapRadar shop card, else (None, None).
+
+    The scanned value keeps the code; a bare card number (no code) is returned
+    as is so TapRadar can answer "code_required".
+    """
+    scanned = re.sub(r"[\s-]", "", value or "").upper()
+    match = MEMBER_CARD.match(scanned)
+    return (match.group(1), scanned) if match else (None, None)
+
+
+def tapradar_error(error, card=False):
+    if card and error in CARD_ERRORS:
+        return str(CARD_ERRORS[error])
+    if error in LINK_ERRORS:
+        return str(LINK_ERRORS[error])
+    return _("TapRadar could not link this customer (%s).", error or "unknown")
 
 
 class ResPartner(models.Model):
@@ -89,49 +109,72 @@ class ResPartner(models.Model):
     def _inverse_tapradar_link_code(self):
         for partner in self:
             code = (partner.tapradar_link_code or "").strip()
-            card = normalize_member_card(code)
+            card, scanned = parse_member_card(code)
             if card:
-                partner._tapradar_link_with_card(card)
+                partner._tapradar_link_with_card(scanned)
             elif code:
                 partner._tapradar_link_with_code(code)
 
-    def _tapradar_link(self, payload):
-        """Send a link request to TapRadar; raises a message for the cashier when it fails."""
-        self.ensure_one()
+    @api.model
+    def _tapradar_request(self, payload):
+        """POST to TapRadar with the company's key; raises a message for the cashier when it fails."""
         company = self.env.company.sudo()
         if not company._tapradar_connected():
             raise UserError(_(
                 "Connect TapRadar first: Point of Sale > Configuration > Settings > TapRadar."
             ))
-        result = tapradar_api.post(self.env, company.tapradar_api_key, {
-            **payload,
-            "customer_ref": self._tapradar_customer_ref(),
-        })
+        result = tapradar_api.post(self.env, company.tapradar_api_key, payload)
         if not result.get("ok"):
-            error = result.get("error") or ""
-            raise UserError(str(LINK_ERRORS[error]) if error in LINK_ERRORS
-                            else _("TapRadar could not link this customer (%s).", error or "unknown"))
-        self.commercial_partner_id.sudo().with_company(company).tapradar_linked = True
+            raise UserError(tapradar_error(result.get("error") or "", card="card" in payload))
+        return result
+
+    def _tapradar_link(self, payload):
+        self.ensure_one()
+        result = self._tapradar_request({**payload, "customer_ref": self._tapradar_customer_ref()})
+        self.commercial_partner_id.sudo().with_company(self.env.company).tapradar_linked = True
         return result
 
     def _tapradar_link_with_code(self, code):
         return self._tapradar_link({"type": "link_customer", "code": code[:32]})
 
-    def _tapradar_link_with_card(self, card):
-        result = self._tapradar_link({"type": "link_member_card", "card": card})
+    def _tapradar_link_with_card(self, scanned):
+        card, scanned = parse_member_card(scanned)
+        result = self._tapradar_link({"type": "link_member_card", "card": scanned})
         partner = self.commercial_partner_id.sudo()
         # A card belongs to one customer: take it away from anyone who had it before.
         self.sudo().search([("tapradar_card", "=", card), ("id", "!=", partner.id)]).tapradar_card = False
         partner.tapradar_card = card
         return result
 
-    def tapradar_link_member_card(self, card):
+    def tapradar_link_member_card(self, scanned):
         """POS: link the scanned TapRadar card to this customer. Returns the commercial partner id."""
         self.ensure_one()
         self.check_access_rights("write")
         self.check_access_rule("write")
-        normalized = normalize_member_card(card)
-        if not normalized:
+        card, scanned = parse_member_card(scanned)
+        if not card:
             raise UserError(str(LINK_ERRORS["invalid_card"]))
-        self._tapradar_link_with_card(normalized)
+        self._tapradar_link_with_card(scanned)
         return self.commercial_partner_id.id
+
+    @api.model
+    def tapradar_scan_member_card(self, scanned):
+        """POS: a TapRadar card was scanned.
+
+        Returns the customer the card belongs to, after TapRadar confirmed the
+        live code, or False when no customer has this card yet (the till then
+        asks which customer it belongs to).
+        """
+        self.check_access_rights("read")
+        card, scanned = parse_member_card(scanned)
+        if not card:
+            raise UserError(str(LINK_ERRORS["invalid_card"]))
+        partner = self.search([("tapradar_card", "=", card)], limit=1)
+        if not partner:
+            return False
+        result = self._tapradar_request({"type": "check_member_card", "card": scanned})
+        linked = result.get("linked") is True
+        commercial = partner.commercial_partner_id.sudo().with_company(self.env.company)
+        if commercial.tapradar_linked != linked:
+            commercial.tapradar_linked = linked
+        return partner.id

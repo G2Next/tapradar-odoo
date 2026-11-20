@@ -1130,3 +1130,17 @@ msgstr "Bitte die TapRadar-Karte direkt in der App des Kunden scannen. Ein Foto 
 #, python-format
 msgid "The code of this TapRadar card has expired. Scan the card in the app again."
 msgstr "Der Code dieser TapRadar-Karte ist abgelaufen. Bitte die Karte in der App erneut scannen."
+
+#. module: tapradar_cashback
+#. odoo-javascript
+#: code:addons/tapradar_cashback/static/src/payment_badge.xml:0
+#, python-format
+msgid "Linked"
+msgstr "Verbunden"
+
+#. module: tapradar_cashback
+#. odoo-javascript
+#: code:addons/tapradar_cashback/static/src/payment_badge.xml:0
+#, python-format
+msgid "TapRadar: not linked"
+msgstr "TapRadar: nicht verbunden"

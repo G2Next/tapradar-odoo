@@ -956,6 +956,16 @@ msgid "Scan the code from the customer's TapRadar app, then save."
 msgstr "Code aus der TapRadar-App des Kunden scannen, dann speichern."
 
 #. module: tapradar_cashback
+#. odoo-javascript
+#: code:addons/tapradar_cashback/static/src/partner_editor.xml:0
+#, python-format
+msgid ""
+"To link again, scan a new code from the customer's TapRadar app, then save."
+msgstr ""
+"Zum erneuten Verbinden einen neuen Code aus der TapRadar-App des Kunden "
+"scannen, dann speichern."
+
+#. module: tapradar_cashback
 #: model:ir.model.fields,help:tapradar_cashback.field_res_partner__tapradar_link_code
 #: model:ir.model.fields,help:tapradar_cashback.field_res_users__tapradar_link_code
 msgid ""
@@ -1048,7 +1058,14 @@ msgstr "Zu viele Versuche. Bitte warten Sie einige Minuten."
 #. module: tapradar_cashback
 #: model:ir.model.fields,help:tapradar_cashback.field_res_partner__tapradar_linked
 #: model:ir.model.fields,help:tapradar_cashback.field_res_users__tapradar_linked
-msgid "Set when the customer was linked with a TapRadar code at this company."
+msgid ""
+"Whether this customer's number is linked with a TapRadar account at this "
+"company. Set when a TapRadar code is saved and updated with every gift card "
+"TapRadar receives, so a link removed in the TapRadar portal or made with the"
+" receipt QR code shows up here."
 msgstr ""
-"Wird gesetzt, wenn der Kunde in diesem Unternehmen mit einem TapRadar-Code "
-"verbunden wurde."
+"Ob die Kundennummer in diesem Unternehmen mit einem TapRadar-Konto verbunden "
+"ist. Wird beim Speichern eines TapRadar-Codes gesetzt und mit jedem an "
+"TapRadar übertragenen Gutschein aktualisiert. So erscheinen hier auch "
+"Verbindungen über den QR-Code auf dem Kassenbon und im TapRadar-Portal "
+"aufgehobene Verbindungen."

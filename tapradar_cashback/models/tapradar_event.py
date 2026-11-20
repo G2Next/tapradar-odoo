@@ -102,10 +102,14 @@ class TapradarCashbackEvent(models.Model):
 
         by_external_id = {str(item.get("external_id")): item for item in result.get("results", [])}
         now = fields.Datetime.now()
+        linked_by_partner = {}
         for event in self:
             item = by_external_id.get(event.external_id, {})
             if item.get("ok"):
                 event.write({"state": "sent", "sent_at": now, "last_error": False})
+                partner = event.card_id.partner_id.commercial_partner_id
+                if partner and isinstance(item.get("linked"), bool):
+                    linked_by_partner[partner] = item["linked"]
             else:
                 event.write({
                     "attempts": event.attempts + 1,
@@ -114,7 +118,20 @@ class TapradarCashbackEvent(models.Model):
                     "state": "failed" if str(item.get("error", "")).startswith("invalid_")
                     or event.attempts + 1 >= MAX_ATTEMPTS else "pending",
                 })
+        self._tapradar_sync_linked(company, linked_by_partner)
         return True
+
+    @api.model
+    def _tapradar_sync_linked(self, company, linked_by_partner):
+        """TapRadar answers each card with whether its customer number is linked.
+
+        That keeps "Linked with TapRadar" right when a link was made with the
+        receipt QR code or removed in the TapRadar portal.
+        """
+        for partner, linked in linked_by_partner.items():
+            partner = partner.sudo().with_company(company)
+            if partner.tapradar_linked != linked:
+                partner.tapradar_linked = linked
 
     def action_retry(self):
         self.write({"state": "pending", "attempts": 0})

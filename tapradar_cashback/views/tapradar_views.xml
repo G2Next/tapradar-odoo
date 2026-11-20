@@ -54,8 +54,9 @@
                     <i class="fa fa-check text-success"/> Linked with TapRadar
                 </div>
                 <!-- Also shown when linked: a link removed in the TapRadar portal is renewed with a new code. -->
-                <field name="tapradar_link_code" placeholder="TR-XXXX-XXXX"
+                <field name="tapradar_link_code" placeholder="TRK… / TR-XXXX-XXXX"
                        invisible="not is_company and parent_id"/>
+                <field name="tapradar_card" readonly="1" invisible="not tapradar_card"/>
             </xpath>
         </field>
     </record>

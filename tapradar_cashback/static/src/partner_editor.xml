@@ -7,10 +7,10 @@
                 <div t-if="props.partner.tapradar_linked" class="form-control-plaintext"><i class="fa fa-check text-success"/> Linked with TapRadar</div>
                 <!-- Always offered: the shop can remove a link in the TapRadar portal, so a linked customer may need a new code. -->
                 <input class="detail form-control" id="tapradar_link_code" name="tapradar_link_code"
-                       t-model="changes.tapradar_link_code" placeholder="TR-XXXX-XXXX"
+                       t-model="changes.tapradar_link_code" placeholder="TRK… / TR-XXXX-XXXX"
                        autocomplete="off" autocapitalize="characters" spellcheck="false"/>
-                <div class="form-text" t-if="props.partner.tapradar_linked">To link again, scan a new code from the customer's TapRadar app, then save.</div>
-                <div class="form-text" t-else="">Scan the code from the customer's TapRadar app, then save.</div>
+                <div class="form-text" t-if="props.partner.tapradar_linked">To link again, scan the TapRadar card or a new code from the customer's TapRadar app, then save.</div>
+                <div class="form-text" t-else="">Scan the TapRadar card or the code from the customer's TapRadar app, then save.</div>
             </div>
         </xpath>
     </t>

@@ -949,40 +949,6 @@ msgid "Linked with TapRadar"
 msgstr "Mit TapRadar verbunden"
 
 #. module: tapradar_cashback
-#. odoo-javascript
-#: code:addons/tapradar_cashback/static/src/partner_editor.xml:0
-#, python-format
-msgid "Scan the code from the customer's TapRadar app, then save."
-msgstr "Code aus der TapRadar-App des Kunden scannen, dann speichern."
-
-#. module: tapradar_cashback
-#. odoo-javascript
-#: code:addons/tapradar_cashback/static/src/partner_editor.xml:0
-#, python-format
-msgid ""
-"To link again, scan a new code from the customer's TapRadar app, then save."
-msgstr ""
-"Zum erneuten Verbinden einen neuen Code aus der TapRadar-App des Kunden "
-"scannen, dann speichern."
-
-#. module: tapradar_cashback
-#: model:ir.model.fields,help:tapradar_cashback.field_res_partner__tapradar_link_code
-#: model:ir.model.fields,help:tapradar_cashback.field_res_users__tapradar_link_code
-msgid ""
-"Scan the code the customer shows in the TapRadar app (My TapRadar code). It "
-"links this customer with the TapRadar account, and the cashback gift cards "
-"appear in the app."
-msgstr "Scannen Sie den Code, den der Kunde in der TapRadar-App zeigt (Mein TapRadar-Code). Damit wird dieser Kunde mit dem TapRadar-Konto verbunden, und die Cashback-Gutscheine erscheinen in der App."
-
-#. module: tapradar_cashback
-#. odoo-javascript
-#: code:addons/tapradar_cashback/static/src/partner_editor.xml:0
-#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_partner_view_form_tapradar
-#, python-format
-msgid "TR-XXXX-XXXX"
-msgstr "TR-XXXX-XXXX"
-
-#. module: tapradar_cashback
 #. odoo-python
 #: code:addons/tapradar_cashback/models/res_partner.py:0
 #, python-format
@@ -1069,3 +1035,98 @@ msgstr ""
 "TapRadar übertragenen Gutschein aktualisiert. So erscheinen hier auch "
 "Verbindungen über den QR-Code auf dem Kassenbon und im TapRadar-Portal "
 "aufgehobene Verbindungen."
+
+#. module: tapradar_cashback
+#. odoo-javascript
+#: code:addons/tapradar_cashback/static/src/member_card.js:0
+#, python-format
+msgid "Choose customer"
+msgstr "Kunden auswählen"
+
+#. module: tapradar_cashback
+#. odoo-javascript
+#: code:addons/tapradar_cashback/static/src/member_card.js:0
+#, python-format
+msgid "New TapRadar card"
+msgstr "Neue TapRadar-Karte"
+
+#. module: tapradar_cashback
+#. odoo-javascript
+#: code:addons/tapradar_cashback/static/src/partner_editor.xml:0
+#, python-format
+msgid "Scan the TapRadar card or the code from the customer's TapRadar app, then save."
+msgstr "TapRadar-Karte oder Code aus der TapRadar-App des Kunden scannen, dann speichern."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_res_partner__tapradar_link_code
+#: model:ir.model.fields,help:tapradar_cashback.field_res_users__tapradar_link_code
+msgid "Scan the code the customer shows in the TapRadar app (My TapRadar code) or the TapRadar card of your shop. It links this customer with the TapRadar account, and the cashback gift cards appear in the app."
+msgstr "Den Code aus der TapRadar-App des Kunden („Mein TapRadar-Code“) oder die TapRadar-Karte deines Geschäfts scannen. Damit wird der Kunde mit dem TapRadar-Konto verbunden, und die Cashback-Gutscheine erscheinen in der App."
+
+#. module: tapradar_cashback
+#. odoo-javascript
+#: code:addons/tapradar_cashback/static/src/partner_editor.xml:0
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_partner_view_form_tapradar
+#, python-format
+msgid "TRK… / TR-XXXX-XXXX"
+msgstr "TRK… / TR-XXXX-XXXX"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_partner__tapradar_card
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_users__tapradar_card
+msgid "TapRadar card"
+msgstr "TapRadar-Karte"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_res_partner__tapradar_card
+#: model:ir.model.fields,help:tapradar_cashback.field_res_users__tapradar_card
+msgid "The customer's TapRadar card for your shop. Scanning it at the till selects this customer."
+msgstr "Die TapRadar-Karte des Kunden für dein Geschäft. Wird sie an der Kasse gescannt, wird dieser Kunde ausgewählt."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_partner.py:0
+#, python-format
+msgid "This TapRadar card is not known for your shop. The customer can add your shop in the TapRadar app under Cards."
+msgstr "Diese TapRadar-Karte ist für dein Geschäft nicht bekannt. Der Kunde kann dein Geschäft in der TapRadar-App unter „Karten“ hinzufügen."
+
+#. module: tapradar_cashback
+#. odoo-javascript
+#: code:addons/tapradar_cashback/static/src/member_card.js:0
+#, python-format
+msgid "This TapRadar card is not linked yet. Choose the customer it belongs to, or create a new customer. From then on, scanning the card selects this customer."
+msgstr "Diese TapRadar-Karte ist noch nicht verbunden. Wähle den Kunden aus, dem sie gehört, oder lege einen neuen Kunden an. Danach wählt das Scannen der Karte diesen Kunden automatisch aus."
+
+#. module: tapradar_cashback
+#. odoo-javascript
+#: code:addons/tapradar_cashback/static/src/partner_editor.xml:0
+#, python-format
+msgid "To link again, scan the TapRadar card or a new code from the customer's TapRadar app, then save."
+msgstr "Zum erneuten Verbinden die TapRadar-Karte oder einen neuen Code aus der TapRadar-App des Kunden scannen, dann speichern."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_partner.py:0
+#, python-format
+msgid ""
+"TapRadar cards are part of the TapRadar Platinum plan. Upgrade your TapRadar"
+" business account to link cards."
+msgstr ""
+"TapRadar-Karten sind Teil des TapRadar-Platinum-Tarifs. Wechsle in deinem "
+"TapRadar-Geschäftskonto zu Platinum, um Karten zu verbinden."
+
+#. module: tapradar_cashback
+#. odoo-javascript
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_partner.py:0
+#: code:addons/tapradar_cashback/static/src/member_card.js:0
+#, python-format
+msgid "Scan the live TapRadar card in the customer's app. A photo or screenshot of the card does not work."
+msgstr "Bitte die TapRadar-Karte direkt in der App des Kunden scannen. Ein Foto oder Screenshot der Karte funktioniert nicht."
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/res_partner.py:0
+#, python-format
+msgid "The code of this TapRadar card has expired. Scan the card in the app again."
+msgstr "Der Code dieser TapRadar-Karte ist abgelaufen. Bitte die Karte in der App erneut scannen."

@@ -388,6 +388,28 @@ class TestTapradarLoyalty(CashbackCommon):
         card.points = 80  # no longer sent
         self.assertFalse(self._loyalty())
 
+    def test_card_without_customer_is_hidden(self):
+        self.env.company.tapradar_loyalty = True
+        card = self.env["loyalty.card"].create({"program_id": self.program.id, "partner_id": self.customer.id, "points": 40})
+        with tapradar_api():
+            self.Event._cron_send()
+
+        card.sudo().partner_id = False
+        last = json.loads(self._loyalty().payload)
+        # Hidden under the old customer number, so the app stops showing it.
+        self.assertEqual((last["customer_ref"], last["active"], last["points"]), ("K-1042", False, 0.0))
+
+    def test_card_moved_to_another_customer_follows_it(self):
+        self.env.company.tapradar_loyalty = True
+        card = self.env["loyalty.card"].create({"program_id": self.program.id, "partner_id": self.customer.id, "points": 40})
+        with tapradar_api():
+            self.Event._cron_send()
+
+        card.sudo().partner_id = self.other_customer
+        last = json.loads(self._loyalty().payload)
+        # Same card id: TapRadar moves it to the new customer number.
+        self.assertEqual((last["customer_ref"], last["active"]), ("K-2000", True))
+
     def test_deleted_card_is_hidden(self):
         self.env.company.tapradar_loyalty = True
         card = self.env["loyalty.card"].create({"program_id": self.program.id, "partner_id": self.customer.id, "points": 40})

@@ -4,15 +4,13 @@
         <xpath expr="//input[@id='vat']/.." position="after">
             <div class="partner-detail col tapradar-link-code">
                 <label class="form-label label" for="tapradar_link_code">TapRadar-Code</label>
-                <t t-if="props.partner.tapradar_linked">
-                    <div class="form-control-plaintext"><i class="fa fa-check text-success"/> Linked with TapRadar</div>
-                </t>
-                <t t-else="">
-                    <input class="detail form-control" id="tapradar_link_code" name="tapradar_link_code"
-                           t-model="changes.tapradar_link_code" placeholder="TR-XXXX-XXXX"
-                           autocomplete="off" autocapitalize="characters" spellcheck="false"/>
-                    <div class="form-text">Scan the code from the customer's TapRadar app, then save.</div>
-                </t>
+                <div t-if="props.partner.tapradar_linked" class="form-control-plaintext"><i class="fa fa-check text-success"/> Linked with TapRadar</div>
+                <!-- Always offered: the shop can remove a link in the TapRadar portal, so a linked customer may need a new code. -->
+                <input class="detail form-control" id="tapradar_link_code" name="tapradar_link_code"
+                       t-model="changes.tapradar_link_code" placeholder="TR-XXXX-XXXX"
+                       autocomplete="off" autocapitalize="characters" spellcheck="false"/>
+                <div class="form-text" t-if="props.partner.tapradar_linked">To link again, scan a new code from the customer's TapRadar app, then save.</div>
+                <div class="form-text" t-else="">Scan the code from the customer's TapRadar app, then save.</div>
             </div>
         </xpath>
     </t>

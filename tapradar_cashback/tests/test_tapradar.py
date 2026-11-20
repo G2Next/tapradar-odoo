@@ -189,3 +189,45 @@ class TestTapradarCheckoutCode(CashbackCommon):
             with self.assertRaises(UserError), self.env.cr.savepoint():
                 self.env["res.partner"].create_from_ui({"id": False, "name": "Zweiter", "tapradar_link_code": "TR-AAAA"})
         self.assertEqual(self.env["res.partner"].search_count([]), count)
+
+    def test_linked_customer_can_link_again(self):
+        """A link removed in the TapRadar portal is renewed with a new code."""
+        self.customer.with_company(self.env.company).tapradar_linked = True
+        with tapradar_api(lambda payload: (200, {"ok": True, "gift_cards": 1})) as sent:
+            self.customer.tapradar_link_code = "TR-AB12-CD34"
+        self.assertEqual(sent[0]["payload"]["code"], "TR-AB12-CD34")
+        self.env.flush_all()
+        self.env.invalidate_all()
+        self.assertTrue(self.customer.tapradar_linked)
+
+    def _send_cards(self, answer):
+        with tapradar_api(answer):
+            self.env["tapradar.cashback.event"]._cron_send()
+        self.env.flush_all()
+        self.env.invalidate_all()  # read back from the database, not the cache
+
+    @staticmethod
+    def _answer(ok, linked=None):
+        def answer(payload):
+            item = {"ok": True, "linked": linked} if ok else {"ok": False, "error": "not_saved"}
+            return 200, {"ok": ok, "results": [{"external_id": card["external_id"], **item} for card in payload["cards"]]}
+        return answer
+
+    def test_gift_card_answers_keep_the_linked_flag_right(self):
+        self._campaign()
+        self._order([(self.meat, 5)], self.customer)
+        # Linked with the receipt QR code: Odoo learns it from the next gift card.
+        self.assertFalse(self.customer.tapradar_linked)
+        self._send_cards(self._answer(True, linked=True))
+        self.assertTrue(self.customer.tapradar_linked)
+        # Link removed in the TapRadar portal: the flag goes away with the next update.
+        self._order([(self.meat, 1)], self.customer)
+        self._send_cards(self._answer(True, linked=False))
+        self.assertFalse(self.customer.tapradar_linked)
+
+    def test_failed_cards_do_not_touch_the_linked_flag(self):
+        self.customer.with_company(self.env.company).tapradar_linked = True
+        self._campaign()
+        self._order([(self.meat, 5)], self.customer)
+        self._send_cards(self._answer(False))
+        self.assertTrue(self.customer.tapradar_linked)

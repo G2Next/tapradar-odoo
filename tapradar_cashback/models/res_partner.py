@@ -29,7 +29,9 @@ class ResPartner(models.Model):
         "Linked with TapRadar",
         company_dependent=True,
         copy=False,
-        help="Set when the customer was linked with a TapRadar code at this company.",
+        help="Whether this customer's number is linked with a TapRadar account at this company. "
+        "Set when a TapRadar code is saved and updated with every gift card TapRadar receives, "
+        "so a link removed in the TapRadar portal or made with the receipt QR code shows up here.",
     )
 
     def _tapradar_customer_ref(self):

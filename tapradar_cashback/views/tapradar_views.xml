@@ -47,14 +47,15 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='ref']" position="after">
                 <field name="tapradar_linked" invisible="1"/>
-                <field name="tapradar_link_code" placeholder="TR-XXXX-XXXX"
-                       invisible="tapradar_linked or not is_company and parent_id"/>
-                <div class="o_td_label" invisible="not tapradar_linked">
+                <div class="o_td_label" invisible="not tapradar_linked or not is_company and parent_id">
                     <span class="o_form_label">TapRadar</span>
                 </div>
-                <div invisible="not tapradar_linked">
+                <div invisible="not tapradar_linked or not is_company and parent_id">
                     <i class="fa fa-check text-success"/> Linked with TapRadar
                 </div>
+                <!-- Also shown when linked: a link removed in the TapRadar portal is renewed with a new code. -->
+                <field name="tapradar_link_code" placeholder="TR-XXXX-XXXX"
+                       invisible="not is_company and parent_id"/>
             </xpath>
         </field>
     </record>

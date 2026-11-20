@@ -1,4 +1,7 @@
+import json
+import time
 from datetime import timedelta
+from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
 from odoo.exceptions import UserError
@@ -255,8 +258,9 @@ class TestTapradarMemberCard(CashbackCommon):
         other = self.env["res.partner"].create({"name": "Vorher", "tapradar_card": self.CARD})
         contact = self.env["res.partner"].create({"name": "Kasse Kontakt", "parent_id": self.customer.id})
         with tapradar_api(lambda payload: (200, {"ok": True, "gift_cards": 2})) as sent:
-            partner_id = contact.tapradar_link_member_card(self.SCANNED)
-        self.assertEqual(partner_id, self.customer.id)
+            result = contact.tapradar_link_member_card(self.SCANNED)
+        self.assertEqual(result["partner_id"], self.customer.id)
+        self.assertTrue(self.customer._tapradar_points_verified(result["points_token"]))
         self.assertEqual(sent[0]["payload"]["customer_ref"], "K-1042")
         self._reload()
         self.assertEqual(self.customer.tapradar_card, self.CARD)
@@ -271,7 +275,9 @@ class TestTapradarMemberCard(CashbackCommon):
 
         self.customer.tapradar_card = self.CARD
         with tapradar_api(lambda payload: (200, {"ok": True, "linked": True})) as sent:
-            self.assertEqual(Partner.tapradar_scan_member_card(self.SCANNED.lower()), self.customer.id)
+            found = Partner.tapradar_scan_member_card(self.SCANNED.lower())
+        self.assertEqual(found["partner_id"], self.customer.id)
+        self.assertTrue(self.customer._tapradar_points_verified(found["points_token"]))
         self.assertEqual(sent[0]["payload"], {"type": "check_member_card", "card": self.SCANNED})
         self._reload()
         self.assertTrue(self.customer.tapradar_linked)
@@ -307,3 +313,170 @@ class TestTapradarMemberCard(CashbackCommon):
             with self.assertRaisesRegex(UserError, "not known for your shop"):
                 self.customer.tapradar_link_member_card("TRK-ILOU")
         self.assertFalse(sent)
+
+
+@tagged("post_install", "-at_install", "tapradar")
+class TestTapradarLoyalty(CashbackCommon):
+    """Loyalty points of the shop's own program, shown on the TapRadar card."""
+
+    def setUp(self):
+        super().setUp()
+        Program = self.env["loyalty.program"]
+        self.program = Program.browse(Program.create_from_template("loyalty")["res_id"])
+        self.program.write({"name": "Treuekarte", "portal_point_name": "Punkte"})
+        self.reward = self.program.reward_ids[:1]
+        self.reward.write({"required_points": 100, "description": "10 € Rabatt"})
+        self.Event = self.env["tapradar.cashback.event"]
+
+    def _loyalty(self):
+        return self.Event.search([("kind", "=", "loyalty"), ("state", "=", "pending")])
+
+    def test_nothing_is_sent_until_the_shop_turns_it_on(self):
+        card = self.env["loyalty.card"].create({"program_id": self.program.id, "partner_id": self.customer.id, "points": 40})
+        self.assertFalse(self._loyalty())
+
+        self.env.company.tapradar_loyalty = True
+        payloads = [json.loads(event.payload) for event in self._loyalty()]
+        self.assertEqual(payloads, [{
+            "external_id": str(card.id),
+            "customer_ref": "K-1042",
+            "program": "Treuekarte",
+            "points": 40.0,
+            "unit": "Punkte",
+            "rewards": [{"description": "10 € Rabatt", "points": 100.0}],
+            "active": True,
+        }])
+
+    def test_points_are_queued_and_sent_as_loyalty_cards(self):
+        self.env.company.tapradar_loyalty = True
+        card = self.env["loyalty.card"].create({"program_id": self.program.id, "partner_id": self.customer.id, "points": 40})
+        card.points = 353.604  # points earned at the POS
+        self.assertEqual([json.loads(e.payload)["points"] for e in self._loyalty()], [353.6])
+        # Cards without a customer and gift cards are not loyalty points.
+        self.env["loyalty.card"].create({"program_id": self.program.id, "points": 5})
+        self.assertEqual(len(self._loyalty()), 1)
+
+        with tapradar_api() as sent:
+            self.Event._cron_send()
+        self.assertEqual([s["payload"]["type"] for s in sent], ["loyalty_cards"])
+        self.assertEqual(sent[0]["payload"]["cards"][0]["points"], 353.6)
+        self.assertFalse(self._loyalty())
+
+    def test_reward_and_program_changes_are_resent(self):
+        self.env.company.tapradar_loyalty = True
+        self.env["loyalty.card"].create({"program_id": self.program.id, "partner_id": self.customer.id, "points": 40})
+        with tapradar_api():
+            self.Event._cron_send()
+
+        self.reward.required_points = 150
+        self.assertEqual(json.loads(self._loyalty().payload)["rewards"][0]["points"], 150.0)
+
+        self.program.active = False
+        last = json.loads(self._loyalty().payload)
+        self.assertEqual((last["active"], last["points"], last["rewards"]), (False, 0.0, []))
+
+    def test_turning_it_off_hides_the_points(self):
+        self.env.company.tapradar_loyalty = True
+        card = self.env["loyalty.card"].create({"program_id": self.program.id, "partner_id": self.customer.id, "points": 40})
+        with tapradar_api():
+            self.Event._cron_send()
+
+        self.env.company.tapradar_loyalty = False
+        self.assertEqual(json.loads(self._loyalty().payload)["active"], False)
+        with tapradar_api():
+            self.Event._cron_send()
+        card.points = 80  # no longer sent
+        self.assertFalse(self._loyalty())
+
+    def test_deleted_card_is_hidden(self):
+        self.env.company.tapradar_loyalty = True
+        card = self.env["loyalty.card"].create({"program_id": self.program.id, "partner_id": self.customer.id, "points": 40})
+        card.sudo().unlink()  # an admin deletes it
+        self.assertEqual(json.loads(self._loyalty().payload)["active"], False)
+
+
+@tagged("post_install", "-at_install", "tapradar")
+class TestTapradarPointsGuard(CashbackCommon):
+    """Points of a customer with a TapRadar card are spent only with the live card."""
+
+    CARD = "TRK7M29QPAK3X"
+    SCANNED = "TRK7M29QPAK3X482913"
+
+    def setUp(self):
+        super().setUp()
+        Program = self.env["loyalty.program"]
+        self.program = Program.browse(Program.create_from_template("loyalty")["res_id"])
+        self.card = self.env["loyalty.card"].create({"program_id": self.program.id, "partner_id": self.customer.id, "points": 200})
+        self.customer.tapradar_card = self.CARD
+        self.Order = self.env["pos.order"]
+
+    def _scan(self):
+        with tapradar_api(lambda payload: (200, {"ok": True, "linked": True})):
+            return self.env["res.partner"].tapradar_scan_member_card(self.SCANNED)["points_token"]
+
+    def test_spending_needs_the_live_card(self):
+        spent = {str(self.card.id): 100}
+        refused = self.Order.tapradar_check_points_spend(spent, False)
+        self.assertFalse(refused["ok"])
+        self.assertIn("scan the live TapRadar card", refused["message"])
+        self.assertTrue(self.Order.tapradar_check_points_spend(spent, self._scan())["ok"])
+        # Earning points or spending none needs nothing.
+        self.assertTrue(self.Order.tapradar_check_points_spend({}, False)["ok"])
+
+    def test_tokens_cannot_be_forged_reused_for_others_or_kept(self):
+        token = self._scan()
+        partner_id, expires, signature = token.split(":")
+        other = self.other_customer
+        other.tapradar_card = "TRK0000000000"
+        self.assertFalse(other._tapradar_points_verified(token))
+        self.assertFalse(other._tapradar_points_verified("%s:%s:%s" % (other.id, expires, signature)))
+        self.assertFalse(self.customer._tapradar_points_verified("%s:%s:%s" % (partner_id, int(expires) + 999, signature)))
+        self.assertFalse(self.customer._tapradar_points_verified("garbage"))
+        self.assertFalse(self.customer._tapradar_points_verified(None))
+        with patch.object(time, "time", return_value=int(expires) + 1):
+            self.assertFalse(self.customer._tapradar_points_verified(token))
+
+    def test_customers_without_tapradar_card_are_unchanged(self):
+        self.customer.tapradar_card = False
+        self.assertTrue(self.Order.tapradar_check_points_spend({str(self.card.id): 100}, False)["ok"])
+
+    def _spend(self, token):
+        order = self._order([(self.cheese, 1)], self.customer)
+        order.lines[:1].sudo().write({"is_reward_line": True, "coupon_id": self.card.id, "points_cost": 100})
+        order.sudo().tapradar_points_token = token
+        order.confirm_coupon_programs({str(self.card.id): {
+            "points": -100, "program_id": self.program.id, "coupon_id": self.card.id, "barcode": False,
+        }})
+        return order
+
+    def test_points_are_not_deducted_without_the_card(self):
+        order = self._spend(False)
+        self.assertEqual(self.card.points, 200)
+        self.assertIn("TapRadar card was not scanned", order.note)
+
+    def test_points_are_deducted_with_the_card(self):
+        order = self._spend(self._scan())
+        self.assertEqual(self.card.points, 100)
+        self.assertFalse(order.note)
+
+    def test_the_token_reaches_the_order(self):
+        data = self.create_ui_order_data([(self.cheese, 1)], customer=self.customer)
+        data["data"]["tapradar_points_token"] = "1:2:x"
+        order = self.Order.browse(self.Order.create_from_ui([data])[0]["id"])
+        self.assertEqual(order.tapradar_points_token, "1:2:x")
+
+    def test_a_tampered_till_cannot_deduct_points(self):
+        # No reward line, only a negative point change: still not deducted.
+        order = self._order([(self.cheese, 1)], self.customer)
+        order.confirm_coupon_programs({str(self.card.id): {
+            "points": -150, "program_id": self.program.id, "coupon_id": self.card.id, "barcode": False,
+        }})
+        self.assertEqual(self.card.points, 200)
+
+    def test_points_earned_in_the_same_order_are_kept(self):
+        order = self._order([(self.cheese, 1)], self.customer)
+        order.lines[:1].sudo().write({"is_reward_line": True, "coupon_id": self.card.id, "points_cost": 100})
+        order.confirm_coupon_programs({str(self.card.id): {
+            "points": -90, "program_id": self.program.id, "coupon_id": self.card.id, "barcode": False,
+        }})
+        self.assertEqual(self.card.points, 210)  # +10 earned, the 100 spent are kept

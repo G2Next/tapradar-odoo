@@ -1,7 +1,10 @@
 import re
+import time
 
 from odoo import _, _lt, api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools import consteq
+from odoo.tools.misc import hmac
 
 from . import tapradar_api
 
@@ -22,6 +25,12 @@ LINK_ERRORS = {
 CARD_ERRORS = {
     "code_expired": _lt("The code of this TapRadar card has expired. Scan the card in the app again."),
 }
+
+# Loyalty points of a customer with a TapRadar card can only be spent in an
+# order where the live card was scanned. The scan gives the till a signed
+# token for that customer, valid for a few hours (one visit).
+POINTS_TOKEN_SECONDS = 3 * 60 * 60
+POINTS_TOKEN_SCOPE = "tapradar_cashback.points"
 
 # TapRadar shop card from the customer app ("Karten"): the card number
 # (TRK + 10 characters) followed by a 6-digit code that changes every 30 s.
@@ -146,8 +155,36 @@ class ResPartner(models.Model):
         partner.tapradar_card = card
         return result
 
+    def _tapradar_points_token(self):
+        """Proof that the customer's live TapRadar card was scanned: "<partner>:<expires>:<signature>"."""
+        self.ensure_one()
+        message = "%s:%s" % (self.commercial_partner_id.id, int(time.time()) + POINTS_TOKEN_SECONDS)
+        return "%s:%s" % (message, hmac(self.env(su=True), POINTS_TOKEN_SCOPE, message))
+
+    def _tapradar_points_verified(self, token):
+        """Whether `token` proves the live card of this customer was scanned and has not expired."""
+        self.ensure_one()
+        parts = (token or "").split(":") if isinstance(token, str) else []
+        if len(parts) != 3 or not parts[0].isdigit() or not parts[1].isdigit():
+            return False
+        message = "%s:%s" % (parts[0], parts[1])
+        return (
+            consteq(parts[2], hmac(self.env(su=True), POINTS_TOKEN_SCOPE, message))
+            and int(parts[0]) == self.commercial_partner_id.id
+            and int(parts[1]) >= time.time()
+        )
+
+    def _tapradar_points_protected(self):
+        """Customers with a TapRadar card spend loyalty points only with the live card."""
+        self.ensure_one()
+        return bool(self.commercial_partner_id.sudo().tapradar_card or self.sudo().tapradar_card)
+
     def tapradar_link_member_card(self, scanned):
-        """POS: link the scanned TapRadar card to this customer. Returns the commercial partner id."""
+        """POS: link the scanned TapRadar card to this customer.
+
+        Returns the commercial partner id and the token that lets this order spend
+        the customer's loyalty points.
+        """
         self.ensure_one()
         self.check_access_rights("write")
         self.check_access_rule("write")
@@ -155,15 +192,15 @@ class ResPartner(models.Model):
         if not card:
             raise UserError(str(LINK_ERRORS["invalid_card"]))
         self._tapradar_link_with_card(scanned)
-        return self.commercial_partner_id.id
+        return {"partner_id": self.commercial_partner_id.id, "points_token": self._tapradar_points_token()}
 
     @api.model
     def tapradar_scan_member_card(self, scanned):
         """POS: a TapRadar card was scanned.
 
-        Returns the customer the card belongs to, after TapRadar confirmed the
-        live code, or False when no customer has this card yet (the till then
-        asks which customer it belongs to).
+        Returns the customer the card belongs to and a points token, after
+        TapRadar confirmed the live code, or False when no customer has this
+        card yet (the till then asks which customer it belongs to).
         """
         self.check_access_rights("read")
         card, scanned = parse_member_card(scanned)
@@ -177,4 +214,4 @@ class ResPartner(models.Model):
         commercial = partner.commercial_partner_id.sudo().with_company(self.env.company)
         if commercial.tapradar_linked != linked:
             commercial.tapradar_linked = linked
-        return partner.id
+        return {"partner_id": partner.id, "points_token": partner._tapradar_points_token()}

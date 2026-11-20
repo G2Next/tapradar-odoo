@@ -1144,3 +1144,111 @@ msgstr "Verbunden"
 #, python-format
 msgid "TapRadar: not linked"
 msgstr "TapRadar: nicht verbunden"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields.selection,name:tapradar_cashback.selection__tapradar_cashback_event__kind__gift_card
+msgid "Cashback gift card"
+msgstr "Cashback-Gutschein"
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_config_settings_view_form_tapradar
+msgid ""
+"Customer numbers, program names, point balances and rewards are sent to TapRadar.\n"
+"                            Names are not sent."
+msgstr ""
+"Kundennummern, Programmnamen, Punktestände und Prämien werden an TapRadar übertragen.\n"
+"                            Namen werden nicht übertragen."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_res_company__tapradar_loyalty
+#: model:ir.model.fields,help:tapradar_cashback.field_res_config_settings__tapradar_loyalty
+msgid ""
+"Customers linked with TapRadar see the points of your loyalty programs on "
+"their TapRadar card. Customer numbers, program names, point balances and "
+"reward thresholds are sent to TapRadar. Names are not sent. Points are still"
+" earned and spent only in Odoo."
+msgstr ""
+"Mit TapRadar verbundene Kunden sehen die Punkte deiner Treueprogramme auf "
+"ihrer TapRadar-Karte. Kundennummern, Programmnamen, Punktestände und "
+"Prämienschwellen werden an TapRadar übertragen. Namen werden nicht "
+"übertragen. Punkte werden weiterhin nur in Odoo gesammelt und eingelöst."
+
+#. module: tapradar_cashback
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_config_settings_view_form_tapradar
+msgid ""
+"Customers linked with TapRadar see the points of your loyalty programs on "
+"their TapRadar card. Points are still earned and spent only here."
+msgstr ""
+"Mit TapRadar verbundene Kunden sehen die Punkte deiner Treueprogramme auf "
+"ihrer TapRadar-Karte. Punkte werden weiterhin nur hier gesammelt und "
+"eingelöst."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_tapradar_cashback_event__kind
+msgid "Kind"
+msgstr "Art"
+
+#. module: tapradar_cashback
+#: model:ir.model,name:tapradar_cashback.model_loyalty_program
+msgid "Loyalty Program"
+msgstr "Treueprogramm"
+
+#. module: tapradar_cashback
+#: model:ir.model,name:tapradar_cashback.model_loyalty_reward
+msgid "Loyalty Reward"
+msgstr "Treuebonus"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields.selection,name:tapradar_cashback.selection__tapradar_cashback_event__kind__loyalty
+msgid "Loyalty points"
+msgstr "Treuepunkte"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_company__tapradar_loyalty
+#: model:ir.model.fields,field_description:tapradar_cashback.field_res_config_settings__tapradar_loyalty
+#: model_terms:ir.ui.view,arch_db:tapradar_cashback.res_config_settings_view_form_tapradar
+msgid "Loyalty points in the TapRadar app"
+msgstr "Treuepunkte in der TapRadar-App"
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/pos_order.py:0
+#, python-format
+msgid ""
+"Loyalty points were not deducted: the customer's TapRadar card was not "
+"scanned for this order."
+msgstr ""
+"Treuepunkte wurden nicht abgezogen: Die TapRadar-Karte des Kunden wurde für "
+"diesen Auftrag nicht gescannt."
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,help:tapradar_cashback.field_pos_order__tapradar_points_token
+msgid ""
+"Set when the customer's live TapRadar card was scanned for this order; "
+"needed to spend the loyalty points of customers with a TapRadar card."
+msgstr ""
+"Gesetzt, wenn die TapRadar-Karte des Kunden für diesen Auftrag live gescannt "
+"wurde; nötig, um Treuepunkte von Kunden mit TapRadar-Karte einzulösen."
+
+#. module: tapradar_cashback
+#. odoo-javascript
+#: code:addons/tapradar_cashback/static/src/payment_badge.xml:0
+#, python-format
+msgid "TapRadar ✓"
+msgstr "TapRadar ✓"
+
+#. module: tapradar_cashback
+#: model:ir.model.fields,field_description:tapradar_cashback.field_pos_order__tapradar_points_token
+msgid "TapRadar card scanned"
+msgstr "TapRadar-Karte gescannt"
+
+#. module: tapradar_cashback
+#. odoo-python
+#: code:addons/tapradar_cashback/models/pos_order.py:0
+#, python-format
+msgid ""
+"This customer collects points with the TapRadar card. To spend points, scan "
+"the live TapRadar card in the customer's app first."
+msgstr ""
+"Dieser Kunde sammelt Punkte mit der TapRadar-Karte. Um Punkte einzulösen, "
+"zuerst die TapRadar-Karte direkt in der App des Kunden scannen."

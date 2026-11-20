@@ -41,23 +41,26 @@ patch(ProductScreen.prototype, {
         }
         return this.popup.add(ErrorPopup, { title: _t("TapRadar"), body: message });
     },
-    async _tapradarSelect(partnerId) {
+    async _tapradarSelect({ partner_id: partnerId, points_token: token }) {
         await this.pos._loadPartners([partnerId]);
         const partner = this.pos.db.get_partner_by_id(partnerId);
         if (partner && this.currentOrder.get_partner() !== partner) {
             this.currentOrder.set_partner(partner);
         }
+        // The live card was scanned: this order may spend the customer's points.
+        this.currentOrder.tapradarPointsToken = token || false;
     },
     async _tapradarLink(partnerId, card) {
+        let result;
         try {
-            await this.orm.call("res.partner", "tapradar_link_member_card", [[partnerId], card.scanned]);
+            result = await this.orm.call("res.partner", "tapradar_link_member_card", [[partnerId], card.scanned]);
         } catch (error) {
             // Remember the choice: scanning the card again links it right away.
             this._tapradarPending = { card: card.card, partnerId, until: Date.now() + PENDING_MS };
             return this._tapradarError(error);
         }
         this._tapradarPending = null;
-        await this._tapradarSelect(partnerId);
+        await this._tapradarSelect(result);
     },
     async _tapradarCardAction(card) {
         if (!card.live) {
@@ -68,14 +71,14 @@ patch(ProductScreen.prototype, {
                 ),
             });
         }
-        let partnerId;
+        let found;
         try {
-            partnerId = await this.orm.call("res.partner", "tapradar_scan_member_card", [card.scanned]);
+            found = await this.orm.call("res.partner", "tapradar_scan_member_card", [card.scanned]);
         } catch (error) {
             return this._tapradarError(error);
         }
-        if (partnerId) {
-            return this._tapradarSelect(partnerId);
+        if (found) {
+            return this._tapradarSelect(found);
         }
 
         const pending = this._tapradarPending;

@@ -25,6 +25,27 @@ class ResCompany(models.Model):
         "Scanning it in the TapRadar app links the customer's account.",
     )
 
+    tapradar_loyalty = fields.Boolean(
+        "Loyalty points in the TapRadar app",
+        copy=False,
+        help="Customers linked with TapRadar see the points of your loyalty programs on their TapRadar card. "
+        "Customer numbers, program names, point balances and reward thresholds are sent to TapRadar. "
+        "Names are not sent. Points are still earned and spent only in Odoo.",
+    )
+
+    def write(self, vals):
+        res = super().write(vals)
+        if "tapradar_loyalty" in vals:
+            Event = self.env["tapradar.cashback.event"]
+            for company in self:
+                cards = Event._loyalty_cards(company)
+                if company.tapradar_loyalty:
+                    cards._tapradar_enqueue_loyalty()
+                else:
+                    # Turned off: hide the points in the app again.
+                    cards._tapradar_enqueue_loyalty(deleted=True, force=True)
+        return res
+
     def _tapradar_connected(self):
         self.ensure_one()
         company = self.sudo()
@@ -55,7 +76,7 @@ class ResCompany(models.Model):
             "tapradar_shop_name": result.get("organization_name") or "",
             "tapradar_link_base": result.get("receipt_link_base") or "https://www.tapradar.app/l/odoo",
         })
-        # Gift cards created while disconnected are sent now.
+        # Gift cards (and loyalty points) changed while disconnected are sent now.
         self.env["tapradar.cashback.event"]._enqueue_company_cards(self)
         return True
 

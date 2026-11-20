@@ -11,14 +11,16 @@ _logger = logging.getLogger(__name__)
 
 BATCH_SIZE = 200
 MAX_ATTEMPTS = 10
+# Request type per kind of update.
+REQUEST_TYPES = {"gift_card": "gift_cards", "loyalty": "loyalty_cards"}
 
 
 class TapradarCashbackEvent(models.Model):
-    """Outbox of gift card updates for TapRadar.
+    """Outbox of gift card and loyalty point updates for TapRadar.
 
-    Every change of a campaign gift card stores its latest state here; a
-    scheduled action sends the queue in batches and retries on failure, so the
-    POS never waits for TapRadar.
+    Every change of a campaign gift card or a loyalty card stores its latest
+    state here; a scheduled action sends the queue in batches and retries on
+    failure, so the POS never waits for TapRadar.
     """
 
     _name = "tapradar.cashback.event"
@@ -27,6 +29,12 @@ class TapradarCashbackEvent(models.Model):
 
     company_id = fields.Many2one("res.company", required=True, index=True)
     card_id = fields.Many2one("loyalty.card", ondelete="set null", index=True)
+    kind = fields.Selection(
+        [("gift_card", "Cashback gift card"), ("loyalty", "Loyalty points")],
+        default="gift_card",
+        required=True,
+        index=True,
+    )
     external_id = fields.Char(required=True, index=True)
     payload = fields.Text(required=True)
     state = fields.Selection(
@@ -40,7 +48,7 @@ class TapradarCashbackEvent(models.Model):
     sent_at = fields.Datetime()
 
     @api.model
-    def _enqueue(self, payloads):
+    def _enqueue(self, payloads, kind="gift_card"):
         """`payloads`: list of (company, card or empty recordset, payload dict). Keeps one pending row per card."""
         queued = False
         for company, card, payload in payloads:
@@ -49,13 +57,16 @@ class TapradarCashbackEvent(models.Model):
             pending = self.sudo().search([
                 ("company_id", "=", company.id),
                 ("external_id", "=", payload["external_id"]),
+                ("kind", "=", kind),
                 ("state", "=", "pending"),
             ], limit=1)
             values = {"payload": json.dumps(payload), "card_id": card.id or False}
             if pending:
                 pending.write(values)
             else:
-                self.sudo().create({**values, "company_id": company.id, "external_id": payload["external_id"]})
+                self.sudo().create({
+                    **values, "company_id": company.id, "external_id": payload["external_id"], "kind": kind,
+                })
             queued = True
         if queued:
             cron = self.env.ref("tapradar_cashback.ir_cron_tapradar_send", raise_if_not_found=False)
@@ -69,29 +80,42 @@ class TapradarCashbackEvent(models.Model):
             ("tapradar_campaign_id.company_id", "=", company.id),
         ])
         cards._tapradar_enqueue()
+        if company.tapradar_loyalty:
+            self._loyalty_cards(company)._tapradar_enqueue_loyalty()
+
+    @api.model
+    def _loyalty_cards(self, company):
+        return self.env["loyalty.card"].sudo().search([
+            ("program_id.program_type", "=", "loyalty"),
+            ("company_id", "in", [company.id, False]),
+            ("partner_id", "!=", False),
+        ])
 
     @api.model
     def _cron_send(self):
         for company in self.env["res.company"].sudo().search([]):
             if not company._tapradar_connected():
                 continue
-            while True:
-                events = self.sudo().search([
-                    ("company_id", "=", company.id),
-                    ("state", "=", "pending"),
-                ], limit=BATCH_SIZE)
-                if not events or not events._send(company):
-                    break
-                if not getattr(threading.current_thread(), "testing", False):
-                    self.env.cr.commit()
+            for kind in REQUEST_TYPES:
+                while True:
+                    events = self.sudo().search([
+                        ("company_id", "=", company.id),
+                        ("kind", "=", kind),
+                        ("state", "=", "pending"),
+                    ], limit=BATCH_SIZE)
+                    if not events or not events._send(company):
+                        break
+                    if not getattr(threading.current_thread(), "testing", False):
+                        self.env.cr.commit()
 
     def _send(self, company):
-        """Send one batch. Returns True if the batch was delivered (even with rejected cards)."""
+        """Send one batch of one kind. Returns True if the batch was delivered (even with rejected cards)."""
         cards = [json.loads(event.payload) for event in self]
+        request_type = REQUEST_TYPES[self[0].kind]
         try:
-            result = tapradar_api.post(self.env, company.tapradar_api_key, {"type": "gift_cards", "cards": cards})
+            result = tapradar_api.post(self.env, company.tapradar_api_key, {"type": request_type, "cards": cards})
         except UserError as error:
-            _logger.warning("Sending %s gift card updates to TapRadar failed: %s", len(self), error)
+            _logger.warning("Sending %s %s updates to TapRadar failed: %s", len(self), request_type, error)
             for event in self:
                 event.write({
                     "attempts": event.attempts + 1,

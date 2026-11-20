@@ -7,6 +7,7 @@ class ResConfigSettings(models.TransientModel):
     tapradar_api_key = fields.Char(related="company_id.tapradar_api_key", readonly=False, groups="base.group_system")
     tapradar_data_consent = fields.Boolean(related="company_id.tapradar_data_consent", readonly=False)
     tapradar_receipt_qr = fields.Boolean(related="company_id.tapradar_receipt_qr", readonly=False)
+    tapradar_loyalty = fields.Boolean(related="company_id.tapradar_loyalty", readonly=False)
     tapradar_shop_name = fields.Char(related="company_id.tapradar_shop_name")
     tapradar_integration_id = fields.Char(related="company_id.tapradar_integration_id")
 

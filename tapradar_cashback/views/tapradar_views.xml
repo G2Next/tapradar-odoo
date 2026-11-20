@@ -35,6 +35,14 @@
                              help="Customers scan it in the TapRadar app once to link their customer number.">
                         <field name="tapradar_receipt_qr"/>
                     </setting>
+                    <setting string="Loyalty points in the TapRadar app"
+                             help="Customers linked with TapRadar see the points of your loyalty programs on their TapRadar card. Points are still earned and spent only here.">
+                        <field name="tapradar_loyalty"/>
+                        <div class="text-muted">
+                            Customer numbers, program names, point balances and rewards are sent to TapRadar.
+                            Names are not sent.
+                        </div>
+                    </setting>
                 </block>
             </xpath>
         </field>

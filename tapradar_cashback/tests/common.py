@@ -34,7 +34,7 @@ def tapradar_api(handler=None):
         sent.append({"url": url, "payload": json, "headers": headers})
         if handler:
             return response(*handler(json))
-        if json["type"] == "gift_cards":
+        if json["type"] in ("gift_cards", "loyalty_cards"):
             return response(200, {"ok": True, "results": [
                 {"external_id": card["external_id"], "ok": True, "linked": False} for card in json["cards"]
             ]})

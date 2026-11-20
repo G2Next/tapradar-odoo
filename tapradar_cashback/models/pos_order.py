@@ -1,12 +1,78 @@
 import logging
 
-from odoo import models
+from odoo import _, api, fields, models
 
 _logger = logging.getLogger(__name__)
 
 
 class PosOrder(models.Model):
     _inherit = "pos.order"
+
+    tapradar_points_token = fields.Char(
+        "TapRadar card scanned",
+        copy=False,
+        readonly=True,
+        help="Set when the customer's live TapRadar card was scanned for this order; "
+        "needed to spend the loyalty points of customers with a TapRadar card.",
+    )
+
+    @api.model
+    def _order_fields(self, ui_order):
+        values = super()._order_fields(ui_order)
+        token = ui_order.get("tapradar_points_token")
+        values["tapradar_points_token"] = token[:200] if isinstance(token, str) else False
+        return values
+
+    @api.model
+    def _tapradar_unverified_cards(self, spent, token):
+        """Loyalty cards in `spent` ({card id: points spent}) whose owner has a TapRadar
+        card but `token` does not prove the live card was scanned."""
+        card_ids = [int(card_id) for card_id, points in spent.items() if int(card_id) > 0 and points > 0]
+        cards = self.env["loyalty.card"].sudo().browse(card_ids).exists()
+        return cards.filtered(
+            lambda card: card.program_id.program_type == "loyalty"
+            and card.partner_id
+            and card.partner_id._tapradar_points_protected()
+            and not card.partner_id._tapradar_points_verified(token)
+        )
+
+    @api.model
+    def tapradar_check_points_spend(self, spent, token):
+        """POS, before payment: may this order spend these loyalty points?"""
+        self.check_access_rights("create")
+        if self._tapradar_unverified_cards(spent or {}, token):
+            return {"ok": False, "message": _(
+                "This customer collects points with the TapRadar card. To spend points, "
+                "scan the live TapRadar card in the customer's app first."
+            )}
+        return {"ok": True}
+
+    def confirm_coupon_programs(self, coupon_data):
+        """Last line of defence: points of a TapRadar customer are not deducted
+        without the live card, even if the till skipped the check.
+
+        The till sends the point changes itself, so any card whose balance would
+        go down counts, whatever the reward lines say.
+        """
+        coupon_data = {int(k): dict(v) for k, v in coupon_data.items()}
+        spent = {}
+        for line in self.lines.filtered(lambda l: l.is_reward_line and l.coupon_id and l.points_cost > 0):
+            spent[line.coupon_id.id] = spent.get(line.coupon_id.id, 0.0) + line.points_cost
+        for card_id, values in coupon_data.items():
+            if card_id > 0 and (values.get("points") or 0) < 0:
+                spent[card_id] = max(spent.get(card_id, 0.0), -values["points"])
+        unverified = self._tapradar_unverified_cards(spent, self.tapradar_points_token)
+        if unverified:
+            for card in unverified:
+                if card.id in coupon_data:
+                    # Keep what the order earned, never take points away.
+                    change = (coupon_data[card.id].get("points") or 0) + spent[card.id]
+                    coupon_data[card.id]["points"] = max(change, 0.0)
+            _logger.warning("POS order %s: loyalty points of cards %s kept, TapRadar card not scanned",
+                            self.id, unverified.ids)
+            message = _("Loyalty points were not deducted: the customer's TapRadar card was not scanned for this order.")
+            self.sudo().note = "\n".join(filter(None, [self.note, message]))
+        return super().confirm_coupon_programs(coupon_data)
 
     def _process_order(self, order, draft, existing_order):
         order_id = super()._process_order(order, draft, existing_order)

@@ -231,3 +231,47 @@ class TestTapradarCheckoutCode(CashbackCommon):
         self._order([(self.meat, 5)], self.customer)
         self._send_cards(self._answer(False))
         self.assertTrue(self.customer.tapradar_linked)
+
+
+@tagged("post_install", "-at_install", "tapradar")
+class TestTapradarMemberCard(CashbackCommon):
+    CARD = "TRK7M29QPAK3X"
+
+    def _reload(self):
+        self.env.flush_all()
+        self.env.invalidate_all()  # read back from the database, not the cache
+
+    def test_card_scanned_into_the_code_field(self):
+        with tapradar_api(lambda payload: (200, {"ok": True, "gift_cards": 0})) as sent:
+            self.customer.tapradar_link_code = " trk7m29 qpak3x "
+        self.assertEqual(sent[0]["payload"], {"type": "link_member_card", "card": self.CARD, "customer_ref": "K-1042"})
+        self._reload()
+        self.assertEqual(self.customer.tapradar_card, self.CARD)
+        self.assertTrue(self.customer.tapradar_linked)
+        self.assertIn("tapradar_card", self.pos_session._loader_params_res_partner()["search_params"]["fields"])
+
+    def test_pos_links_the_card_and_moves_it_from_another_customer(self):
+        other = self.env["res.partner"].create({"name": "Vorher", "tapradar_card": self.CARD})
+        contact = self.env["res.partner"].create({"name": "Kasse Kontakt", "parent_id": self.customer.id})
+        with tapradar_api(lambda payload: (200, {"ok": True, "gift_cards": 2})) as sent:
+            partner_id = contact.tapradar_link_member_card(self.CARD)
+        self.assertEqual(partner_id, self.customer.id)
+        self.assertEqual(sent[0]["payload"]["customer_ref"], "K-1042")
+        self._reload()
+        self.assertEqual(self.customer.tapradar_card, self.CARD)
+        self.assertFalse(other.tapradar_card)
+
+    def test_card_errors_are_shown_to_the_cashier(self):
+        with tapradar_api(lambda payload: (200, {"ok": False, "error": "invalid_card"})):
+            with self.assertRaisesRegex(UserError, "not known for your shop"):
+                self.customer.tapradar_link_member_card(self.CARD)
+        with tapradar_api(lambda payload: (200, {"ok": False, "error": "already_linked_other"})):
+            with self.assertRaisesRegex(UserError, "already linked with another customer"):
+                self.customer.tapradar_link_member_card(self.CARD)
+        self._reload()
+        self.assertFalse(self.customer.tapradar_card)
+        self.assertFalse(self.customer.tapradar_linked)
+        with tapradar_api() as sent:
+            with self.assertRaisesRegex(UserError, "not known for your shop"):
+                self.customer.tapradar_link_member_card("TRK-ILOU")
+        self.assertFalse(sent)

@@ -57,7 +57,7 @@
         <div class="col-md-12">
             <h3 style="color: #875A7B; font-size: 24px;">Set up a campaign</h3>
             <p style="font-size: 15px;">
-                Point of Sale &gt; Configuration &gt; Cashback Campaigns. Choose the days, the percentage or fixed amount, the minimum
+                Point of Sale &gt; Products &gt; Cashback Campaigns. Choose the days, the percentage or fixed amount, the minimum
                 purchase, the gift card program and how long the gift cards stay valid, then click
                 <b>Activate</b>.
             </p>
@@ -94,7 +94,48 @@
                 <li>An hourly scheduled action catches up on any missed order and closes finished campaigns.
                     Once a campaign is over, existing gift cards are never changed.</li>
                 <li>A POS left open overnight loads the programs once: reload it the day after the campaign.</li>
-                <li>The module sends no data outside your Odoo database.</li>
+                <li>Without a TapRadar connection, the module sends no data outside your Odoo database.</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="container" style="margin-top: 24px;">
+    <div class="row">
+        <div class="col-md-12">
+            <h3 style="color: #875A7B; font-size: 24px;">Optional: connect TapRadar</h3>
+            <p style="font-size: 15px;">
+                TapRadar is a customer app for local shops. Connecting it is optional; campaigns and gift cards
+                work the same without it. To connect, create an integration key in your TapRadar business
+                account and enter it under Point of Sale &gt; Configuration &gt; Settings &gt; TapRadar.
+            </p>
+            <ul style="font-size: 15px;">
+                <li><b>Gift cards in the app:</b> linked customers see their cashback gift cards, balance and
+                    validity in the TapRadar app. Point of Sale &gt; Products &gt; TapRadar Sync lists every
+                    update and lets you retry failed ones.</li>
+                <li><b>Linking customers:</b> a QR code on the receipt, or the customer's code from the app
+                    scanned into the customer's "TapRadar-Code" field.</li>
+                <li><b>TapRadar card</b> (TapRadar Platinum): the customer's shop card in the app shows a
+                    6-digit code that changes every 30 seconds, so a photo or screenshot does not work. Scanning
+                    it at the till selects the customer. A badge on the payment screen shows whether the customer
+                    is linked, without any name.</li>
+                <li><b>Loyalty points in the app</b> (off by default): linked customers see the points of your
+                    own Odoo loyalty programs and the next reward. Points are still earned and spent only in
+                    Odoo.</li>
+                <li><b>Spending protection:</b> customers with a TapRadar card can only spend loyalty points in
+                    an order where their live card was scanned. The server enforces this too.</li>
+            </ul>
+            <h3 style="color: #875A7B; font-size: 24px; margin-top: 16px;">What is sent to TapRadar</h3>
+            <p style="font-size: 15px;">
+                Only after you connect and agree to share the data in the settings:
+            </p>
+            <ul style="font-size: 15px;">
+                <li>The customer number: the contact's <i>Reference</i>, or <code>odoo-&lt;id&gt;</code> when
+                    it is empty.</li>
+                <li>Gift cards of cashback campaigns: code, title, balance, currency and validity.</li>
+                <li>Loyalty cards, when that setting is on: program name, balance, point unit and up to 10 reward
+                    thresholds.</li>
+                <li>No customer names, e-mail addresses, phone numbers or purchase details are sent.</li>
             </ul>
             <h3 style="color: #875A7B; font-size: 24px; margin-top: 16px;">Requirements</h3>
             <ul style="font-size: 15px;">

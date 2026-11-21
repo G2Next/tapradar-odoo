@@ -1,64 +1,97 @@
-# TapRadar Odoo-Addons
+# TapRadar Odoo Add-ons
 
-Odoo.sh ve Odoo Apps Store için TapRadar eklentileri. Odoo, bu repodaki `17.0`
-branch'ini eklenti klasörü olarak kullanır (her eklenti kök dizinde bir klasör).
+TapRadar add-ons for Odoo.sh and the Odoo Apps Store. Odoo uses the `17.0`
+branch of this repository as an add-ons folder (one folder per add-on at the root).
 
-## tapradar_cashback: Cashback Gift Cards (Cashback-Gutscheine)
+## tapradar_cashback: Cashback Gift Cards
 
-Bir kampanya süresince Odoo POS'ta yapılan her alışveriş, müşteriye bir sonraki
-alışverişte kullanılacak kişiye özel bir Gutschein kazandırır.
+During a campaign, every purchase at the Odoo Point of Sale earns the customer a
+personal gift card for their next visit.
 
-- **Değer:** Odoo yöneticisi seçer: alışverişin yüzdesi (örn. %5 veya %10) ya da
-  sabit tutar (örn. 50 € üzeri her alışverişe 5 €).
-- **Alışveriş biter bitmez** müşterinin Gutschein'ı oluşur. Kampanya içindeki her
-  yeni alışveriş aynı Gutschein'ı artırır, iade azaltır.
-- Gutschein **kampanya içinde kullanılamaz**. Kasada okutulursa "erst ab … einlösbar"
-  mesajı çıkar; sunucu da harcamayı reddeder.
-- **Geçerlilik sonu** yöneticinin girdiği tarih. Başlangıç her zaman son kampanya
-  gününden sonraki gün.
-- Kasada okutulunca bakiyeyi Odoo düşer (eingelöst).
+- **Value:** chosen by the Odoo administrator, either a percentage of the purchase
+  (e.g. 5% or 10%) or a fixed amount (e.g. €5 for every purchase over €50).
+- **Right after the purchase** the customer's gift card is created. Every further
+  purchase during the campaign increases the same gift card; refunds reduce it.
+- The gift card **cannot be used during the campaign**. If it is scanned at the
+  till, the cashier sees "can only be used from …", and the server refuses it too.
+- **Valid until** is the date the administrator enters. Validity always starts the
+  day after the last campaign day.
+- When the gift card is scanned at the till, Odoo deducts the balance (redeemed).
 
-**Kullanım:** Kasse → Konfiguration → Cashback-Aktionen
+**Usage:** Point of Sale → Products → Cashback Campaigns
 
-1. *Gutscheine & Treue* içinde bu kampanyaya özel **Geschenkkarte** tipinde bir
-   program açın. Programın tarihlerini eklenti kendisi ayarlar.
-2. Kasse ayarlarında Geschenkkarte seçeneği: **vorhandene Geschenkkarten scannen**.
-3. Yeni kampanya: tarihler, yüzde veya sabit tutar, alt sınır, Pfand kategorisi,
-   program, geçerlilik sonu → **Aktivieren**.
-4. **Vorschau** ile kim ne kadar alıyor görülebilir.
+1. Under *Point of Sale → Products → Gift cards & eWallet*, create a program of type
+   **Gift Card** for this campaign only. The add-on sets the program's dates itself.
+2. In the Point of Sale settings, set Gift Cards to **Scan existing cards**.
+3. New campaign: dates, percentage or fixed amount, minimum, excluded categories
+   (e.g. deposits), gift card program, valid until → **Activate**.
+4. **Preview** shows who gets how much.
 
-Kurallar:
-- Brüt tutar (vergiler dahil), seçilen kategorilerdeki ürünler hariç.
-- Sadece müşteri seçilmiş siparişler sayılır (Kundennummer = Kontakt'taki *Referenz*).
-- Kasa açıkken POS program listesini yükler: kampanyadan sonraki gün kasayı
-  yeniden yükleyin, yoksa Gutschein "geçersiz" görünür.
-- Saatte bir çalışan görev kaçan siparişleri yakalar ve biten kampanyayı kapatır.
-  Kampanya bittikten sonra mevcut Gutschein'lara dokunulmaz.
+Rules:
+- Gross amount (taxes included), without products of the excluded categories.
+- Only orders with a customer count (customer number = *Reference* on the contact).
+- The POS loads the program list when it opens: reload the POS on the day after the
+  campaign, otherwise the gift card shows as "invalid".
+- An hourly job catches missed orders and closes finished campaigns. After a
+  campaign has ended, existing gift cards are not touched.
 
-Arayüz İngilizce, Almanca çeviri `i18n/de.po` içinde. Bağımlılık: `pos_loyalty`
-(Odoo 17 Community + Enterprise). Odoo Online'da çalışmaz.
+The interface is in English; the German translation is in `i18n/de.po`.
+Dependency: `pos_loyalty` (Odoo 17 Community + Enterprise). Does not work on Odoo Online.
 
-## Yerel geliştirme
+## Local development
 
 ```bash
 docker compose up -d          # http://localhost:8069
 ```
 
-Testler:
+Tests:
 
 ```bash
 docker compose run --rm odoo odoo -d cashback_test -i tapradar_cashback \
   --test-tags /tapradar_cashback --stop-after-init --without-demo=all
 ```
 
-## TapRadar bağlantısı
+## TapRadar connection
 
-- **Kasse → Konfiguration → Einstellungen → TapRadar:** TapRadar işletme hesabında
-  (Dashboard → Odoo-Kasse) oluşturulan entegrasyon anahtarını girin, "Verbindung testen".
-- Gutschein oluşunca/değişince TapRadar'a otomatik gönderilir (saatlik görev yakalar).
-- **Fişte QR kod** (`https://www.tapradar.app/l/odoo?...`): müşteri TapRadar ile tarar,
-  müşteri numarası hesabına bağlanır.
-- **Kasada kod:** müşteri uygulamada "Mein TapRadar-Code" açar, kasiyer kodu
-  müşteri kartındaki "TapRadar-Code" alanına okutur ve kaydeder.
-- Müşteri numarası = Kontakt'taki *Referenz*, boşsa `odoo-<id>`. TapRadar'a isim,
-  e-posta veya alışveriş verisi gönderilmez.
+- **Point of Sale → Configuration → Settings → TapRadar:** enter the integration key
+  created in the TapRadar business account (Dashboard → "Kassensysteme" (till systems) → Odoo), agree
+  to share the gift card data, then **Connect**.
+- Gift cards are sent to TapRadar automatically when they are created or change
+  (the hourly job catches up on anything missed). **Point of Sale → Products →
+  TapRadar Sync** lists every update and lets you retry failed ones.
+- **QR code on receipts** (`https://www.tapradar.app/l/odoo?...`): the customer scans
+  it with the TapRadar app, which links the customer number to their account.
+- **Code at the till:** the customer opens "Mein TapRadar-Code" (my TapRadar code) in the app, the
+  cashier scans the code into the "TapRadar-Code" field on the customer and saves.
+- The customer number is the *Reference* on the contact, or `odoo-<id>` when it is
+  empty. No names, e-mail addresses or purchase data are sent to TapRadar.
+
+### TapRadar card (TapRadar Platinum)
+
+- The customer adds the shop under "Karten" (cards) in the TapRadar app. The card shows the
+  card number plus a 6-digit code that changes every 30 seconds, so a photo or
+  screenshot does not work at the till.
+- **First scan:** the till asks which customer the card belongs to and links it.
+  **Later scans** select that customer automatically once TapRadar has confirmed
+  the live code.
+- On the payment screen, a badge under **Invoice** shows whether the chosen customer
+  is linked with TapRadar. It never shows a name or nickname.
+
+### Loyalty points in the TapRadar app
+
+- Setting **Loyalty points in the TapRadar app** (off by default). When it is on,
+  linked customers see the points of the shop's own loyalty programs on their
+  TapRadar card, with the next reward.
+- Sent per loyalty card: customer number, program name, balance, point unit and up
+  to 10 reward thresholds. No names. Turning the setting off, archiving the
+  program, deleting the card or removing its customer hides the points in the app.
+- Points are earned and spent only in Odoo; TapRadar only shows them.
+
+### Spending points needs the live TapRadar card
+
+- Customers with a TapRadar card can only spend loyalty points in an order where
+  their live card was scanned. Otherwise the payment screen stops with a message.
+- The scan gives the order a signed token for that customer (valid for 3 hours).
+  Even if the till skips the check, the server does not deduct the points without
+  it, keeps any points earned in the same order and notes it on the order.
+- Customers without a TapRadar card are not affected.

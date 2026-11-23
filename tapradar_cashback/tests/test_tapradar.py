@@ -123,7 +123,7 @@ class TestTapradarConnection(CashbackCommon):
         self.assertEqual(link_signature("s3cret", INTEGRATION_ID, "K-1042 ä"), "4167d5370cdaf01e35f79c35c40a72d2")
         self.assertEqual(query["s"], link_signature("s3cret", INTEGRATION_ID, "K-1042"))
 
-        self.assertIn("tapradar_link_url", self.pos_session._loader_params_res_partner()["search_params"]["fields"])
+        self.assertIn("tapradar_link_url", self.env["res.partner"]._load_pos_data_fields(self.config))
 
         self.env.company.tapradar_receipt_qr = False
         self.customer.invalidate_recordset(["tapradar_link_url"])
@@ -140,7 +140,7 @@ class TestTapradarCheckoutCode(CashbackCommon):
         self.env.invalidate_all()  # read back from the database, not the cache
         self.assertTrue(self.customer.tapradar_linked)
         self.assertFalse(self.customer.tapradar_link_code)  # never stored
-        self.assertIn("tapradar_linked", self.pos_session._loader_params_res_partner()["search_params"]["fields"])
+        self.assertIn("tapradar_linked", self.env["res.partner"]._load_pos_data_fields(self.config))
 
     def test_contact_person_links_the_company(self):
         contact = self.env["res.partner"].create({"name": "Kasse Kontakt", "parent_id": self.customer.id})
@@ -177,9 +177,9 @@ class TestTapradarCheckoutCode(CashbackCommon):
 
     def test_new_customer_from_the_pos_editor(self):
         with tapradar_api(lambda payload: (200, {"ok": True, "gift_cards": 0})) as sent:
-            partner_id = self.env["res.partner"].create_from_ui({
-                "id": False, "name": "Neukunde", "tapradar_link_code": "TR-K7M2-9QPA",
-            })
+            partner_id = self.env["res.partner"].create({
+                "name": "Neukunde", "tapradar_link_code": "TR-K7M2-9QPA",
+            }).id
         self.env.flush_all()
         self.env.invalidate_all()
         partner = self.env["res.partner"].browse(partner_id)
@@ -190,7 +190,7 @@ class TestTapradarCheckoutCode(CashbackCommon):
         count = self.env["res.partner"].search_count([])
         with tapradar_api(lambda payload: (200, {"ok": False, "error": "invalid_code"})):
             with self.assertRaises(UserError), self.env.cr.savepoint():
-                self.env["res.partner"].create_from_ui({"id": False, "name": "Zweiter", "tapradar_link_code": "TR-AAAA"})
+                self.env["res.partner"].create({"name": "Zweiter", "tapradar_link_code": "TR-AAAA"})
         self.assertEqual(self.env["res.partner"].search_count([]), count)
 
     def test_linked_customer_can_link_again(self):
@@ -252,7 +252,7 @@ class TestTapradarMemberCard(CashbackCommon):
         self._reload()
         self.assertEqual(self.customer.tapradar_card, self.CARD)  # stored without the code
         self.assertTrue(self.customer.tapradar_linked)
-        self.assertIn("tapradar_card", self.pos_session._loader_params_res_partner()["search_params"]["fields"])
+        self.assertIn("tapradar_card", self.env["res.partner"]._load_pos_data_fields(self.config))
 
     def test_pos_links_the_card_and_moves_it_from_another_customer(self):
         other = self.env["res.partner"].create({"name": "Vorher", "tapradar_card": self.CARD})
@@ -474,17 +474,17 @@ class TestTapradarPointsGuard(CashbackCommon):
     def test_points_are_not_deducted_without_the_card(self):
         order = self._spend(False)
         self.assertEqual(self.card.points, 200)
-        self.assertIn("TapRadar card was not scanned", order.note)
+        self.assertIn("TapRadar card was not scanned", order.internal_note)
 
     def test_points_are_deducted_with_the_card(self):
         order = self._spend(self._scan())
         self.assertEqual(self.card.points, 100)
-        self.assertFalse(order.note)
+        self.assertFalse(order.internal_note)
 
     def test_the_token_reaches_the_order(self):
         data = self.create_ui_order_data([(self.cheese, 1)], customer=self.customer)
-        data["data"]["tapradar_points_token"] = "1:2:x"
-        order = self.Order.browse(self.Order.create_from_ui([data])[0]["id"])
+        data["tapradar_points_token"] = "1:2:x"
+        order = self.Order.browse(self.Order.sync_from_ui([data])["pos.order"][0]["id"])
         self.assertEqual(order.tapradar_points_token, "1:2:x")
 
     def test_a_tampered_till_cannot_deduct_points(self):

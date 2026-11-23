@@ -177,10 +177,10 @@ class TapradarCashbackCampaign(models.Model):
     card_count = fields.Integer(compute="_compute_card_stats")
     card_total = fields.Monetary("Issued value", compute="_compute_card_stats")
 
-    _sql_constraints = [
-        ("min_amount_positive", "CHECK(min_amount >= 0)", "The minimum purchase cannot be negative."),
-        ("program_unique", "UNIQUE(program_id)", "Each campaign needs its own gift card program."),
-    ]
+    _min_amount_positive = models.Constraint(
+        "CHECK(min_amount >= 0)", "The minimum purchase cannot be negative."
+    )
+    _program_unique = models.Constraint("UNIQUE(program_id)", "Each campaign needs its own gift card program.")
 
     @api.constrains("reward_type", "percent", "fixed_amount")
     def _check_reward(self):
@@ -445,7 +445,7 @@ class TapradarCashbackCampaign(models.Model):
             "type": "ir.actions.act_window",
             "name": _("Gift Cards"),
             "res_model": "loyalty.card",
-            "view_mode": "tree,form",
+            "view_mode": "list,form",
             "domain": [("tapradar_campaign_id", "=", self.id)],
             "context": {"create": False},
         }

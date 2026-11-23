@@ -16,8 +16,6 @@ class CashbackCommon(TestPoSCommon):
     def setUpClass(cls):
         super().setUpClass()
         cls.config = cls.basic_config
-        # The POS only scans existing gift cards; it does not sell or print new ones.
-        cls.config.gift_card_settings = "scan_use"
         cls.deposit_categ = cls.env["product.category"].create({"name": "Deposits"})
         cls.meat = cls.create_product("Schwein Karreerose", cls.categ_basic, 100.0)
         cls.cheese = cls.create_product("Käse", cls.categ_basic, 20.0)
@@ -53,8 +51,8 @@ class CashbackCommon(TestPoSCommon):
 
     def _order(self, lines, customer):
         data = self.create_ui_order_data(lines, customer=customer)
-        result = self.env["pos.order"].create_from_ui([data])
-        return self.env["pos.order"].browse(result[0]["id"])
+        result = self.env["pos.order"].sync_from_ui([data])
+        return self.env["pos.order"].browse(result["pos.order"][0]["id"])
 
     def _card(self, campaign, partner):
         return campaign.card_ids.filtered(lambda c: c.partner_id == partner)

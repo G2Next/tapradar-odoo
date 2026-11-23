@@ -1,12 +1,15 @@
 import re
 import time
 
-from odoo import _, _lt, api, fields, models
+from odoo import _, api, fields, models
+from odoo.tools.translate import LazyTranslate
 from odoo.exceptions import UserError
 from odoo.tools import consteq
 from odoo.tools.misc import hmac
 
 from . import tapradar_api
+
+_lt = LazyTranslate(__name__)
 
 LINK_ERRORS = {
     "invalid_code": _lt("This TapRadar code is not valid. Ask the customer to open a new code in the app."),
@@ -48,12 +51,13 @@ def parse_member_card(value):
     return (match.group(1), scanned) if match else (None, None)
 
 
-def tapradar_error(error, card=False):
+def tapradar_error(env, error, card=False):
+    """The cashier's message for a TapRadar error code, in the user's language."""
     if card and error in CARD_ERRORS:
-        return str(CARD_ERRORS[error])
+        return CARD_ERRORS[error]._translate(env.lang)
     if error in LINK_ERRORS:
-        return str(LINK_ERRORS[error])
-    return _("TapRadar could not link this customer (%s).", error or "unknown")
+        return LINK_ERRORS[error]._translate(env.lang)
+    return env._("TapRadar could not link this customer (%s).", error or "unknown")
 
 
 class ResPartner(models.Model):
@@ -82,6 +86,10 @@ class ResPartner(models.Model):
         "Set when a TapRadar code is saved and updated with every gift card TapRadar receives, "
         "so a link removed in the TapRadar portal or made with the receipt QR code shows up here.",
     )
+
+    @api.model
+    def _load_pos_data_fields(self, config):
+        return super()._load_pos_data_fields(config) + ["tapradar_link_url", "tapradar_linked", "tapradar_card"]
 
     def _tapradar_customer_ref(self):
         """Customer number sent to TapRadar: the Reference, or the Odoo ID when it is empty.
@@ -134,7 +142,7 @@ class ResPartner(models.Model):
             ))
         result = tapradar_api.post(self.env, company.tapradar_api_key, payload)
         if not result.get("ok"):
-            raise UserError(tapradar_error(result.get("error") or "", card="card" in payload))
+            raise UserError(tapradar_error(self.env, result.get("error") or "", card="card" in payload))
         return result
 
     def _tapradar_link(self, payload):
@@ -186,11 +194,10 @@ class ResPartner(models.Model):
         the customer's loyalty points.
         """
         self.ensure_one()
-        self.check_access_rights("write")
-        self.check_access_rule("write")
+        self.check_access("write")
         card, scanned = parse_member_card(scanned)
         if not card:
-            raise UserError(str(LINK_ERRORS["invalid_card"]))
+            raise UserError(tapradar_error(self.env, "invalid_card"))
         self._tapradar_link_with_card(scanned)
         return {"partner_id": self.commercial_partner_id.id, "points_token": self._tapradar_points_token()}
 
@@ -202,10 +209,10 @@ class ResPartner(models.Model):
         TapRadar confirmed the live code, or False when no customer has this
         card yet (the till then asks which customer it belongs to).
         """
-        self.check_access_rights("read")
+        self.check_access("read")
         card, scanned = parse_member_card(scanned)
         if not card:
-            raise UserError(str(LINK_ERRORS["invalid_card"]))
+            raise UserError(tapradar_error(self.env, "invalid_card"))
         partner = self.search([("tapradar_card", "=", card)], limit=1)
         if not partner:
             return False

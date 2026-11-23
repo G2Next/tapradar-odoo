@@ -73,7 +73,7 @@
         <field name="name">tapradar.cashback.event.tree</field>
         <field name="model">tapradar.cashback.event</field>
         <field name="arch" type="xml">
-            <tree create="false" edit="false">
+            <list create="false" edit="false">
                 <field name="create_date" string="Queued"/>
                 <field name="card_id"/>
                 <field name="state" widget="badge"
@@ -83,14 +83,14 @@
                 <field name="last_error"/>
                 <button name="action_retry" type="object" string="Retry" icon="fa-refresh"
                         invisible="state == 'sent'"/>
-            </tree>
+            </list>
         </field>
     </record>
 
     <record id="tapradar_cashback_event_action" model="ir.actions.act_window">
         <field name="name">TapRadar Sync</field>
         <field name="res_model">tapradar.cashback.event</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">list</field>
         <field name="context">{'search_default_not_sent': 1}</field>
     </record>
 

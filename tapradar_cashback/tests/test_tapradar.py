@@ -11,6 +11,9 @@ from ..models.tapradar_api import link_signature
 from .common import INTEGRATION_ID, queued, tapradar_api
 from .test_campaign import CashbackCommon
 
+EVENT_LOG = "odoo.addons.tapradar_cashback.models.tapradar_event"
+ORDER_LOG = "odoo.addons.tapradar_cashback.models.pos_order"
+
 
 @tagged("post_install", "-at_install", "tapradar")
 class TestTapradarConnection(CashbackCommon):
@@ -93,7 +96,7 @@ class TestTapradarConnection(CashbackCommon):
         self._order([(self.meat, 5)], self.customer)
         Event = self.env["tapradar.cashback.event"]
 
-        with tapradar_api(lambda payload: (500, {"error": "internal_error"})):
+        with tapradar_api(lambda payload: (500, {"error": "internal_error"})), self.assertLogs(EVENT_LOG, "WARNING"):
             Event._cron_send()
         event = Event.search([])
         self.assertEqual((event.state, event.attempts), ("pending", 1))
@@ -472,7 +475,8 @@ class TestTapradarPointsGuard(CashbackCommon):
         return order
 
     def test_points_are_not_deducted_without_the_card(self):
-        order = self._spend(False)
+        with self.assertLogs(ORDER_LOG, "WARNING"):
+            order = self._spend(False)
         self.assertEqual(self.card.points, 200)
         self.assertIn("TapRadar card was not scanned", order.note)
 
@@ -490,15 +494,17 @@ class TestTapradarPointsGuard(CashbackCommon):
     def test_a_tampered_till_cannot_deduct_points(self):
         # No reward line, only a negative point change: still not deducted.
         order = self._order([(self.cheese, 1)], self.customer)
-        order.confirm_coupon_programs({str(self.card.id): {
-            "points": -150, "program_id": self.program.id, "coupon_id": self.card.id, "barcode": False,
-        }})
+        with self.assertLogs(ORDER_LOG, "WARNING"):
+            order.confirm_coupon_programs({str(self.card.id): {
+                "points": -150, "program_id": self.program.id, "coupon_id": self.card.id, "barcode": False,
+            }})
         self.assertEqual(self.card.points, 200)
 
     def test_points_earned_in_the_same_order_are_kept(self):
         order = self._order([(self.cheese, 1)], self.customer)
         order.lines[:1].sudo().write({"is_reward_line": True, "coupon_id": self.card.id, "points_cost": 100})
-        order.confirm_coupon_programs({str(self.card.id): {
-            "points": -90, "program_id": self.program.id, "coupon_id": self.card.id, "barcode": False,
-        }})
+        with self.assertLogs(ORDER_LOG, "WARNING"):
+            order.confirm_coupon_programs({str(self.card.id): {
+                "points": -90, "program_id": self.program.id, "coupon_id": self.card.id, "barcode": False,
+            }})
         self.assertEqual(self.card.points, 210)  # +10 earned, the 100 spent are kept

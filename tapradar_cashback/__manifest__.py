@@ -2,7 +2,7 @@
     "name": "Cashback Gift Cards",
     "summary": "Every POS purchase during a campaign automatically earns a personal gift card "
     "(percentage or fixed amount) for the next visit, usable only after the campaign",
-    "version": "17.0.1.0.0",
+    "version": "19.0.1.0.0",
     "category": "Sales/Point of Sale",
     "author": "TapRadar",
     "website": "https://tapradar.app",

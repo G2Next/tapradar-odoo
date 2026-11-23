@@ -4,7 +4,7 @@
         <field name="name">tapradar.cashback.campaign.tree</field>
         <field name="model">tapradar.cashback.campaign</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
                 <field name="date_from"/>
                 <field name="date_to"/>
@@ -15,7 +15,7 @@
                 <field name="card_total"/>
                 <field name="state" widget="badge"
                        decoration-info="state == 'active'" decoration-success="state == 'done'"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -97,7 +97,7 @@
     <record id="tapradar_cashback_action" model="ir.actions.act_window">
         <field name="name">Cashback Campaigns</field>
         <field name="res_model">tapradar.cashback.campaign</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">Create your first cashback campaign</p>
             <p>Every purchase during the campaign earns a personal gift card for the next purchase.</p>

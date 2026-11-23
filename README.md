@@ -1,7 +1,10 @@
 # TapRadar Odoo Add-ons
 
-TapRadar add-ons for Odoo.sh and the Odoo Apps Store. Odoo uses the `17.0`
-branch of this repository as an add-ons folder (one folder per add-on at the root).
+TapRadar add-ons for Odoo.sh and the Odoo Apps Store. Each Odoo version has its own
+branch, used as an add-ons folder (one folder per add-on at the root):
+
+- `19.0`: Odoo 19 (this branch)
+- `17.0`: Odoo 17
 
 ## tapradar_cashback: Cashback Gift Cards
 
@@ -22,10 +25,9 @@ personal gift card for their next visit.
 
 1. Under *Point of Sale → Products → Gift cards & eWallet*, create a program of type
    **Gift Card** for this campaign only. The add-on sets the program's dates itself.
-2. In the Point of Sale settings, set Gift Cards to **Scan existing cards**.
-3. New campaign: dates, percentage or fixed amount, minimum, excluded categories
+2. New campaign: dates, percentage or fixed amount, minimum, excluded categories
    (e.g. deposits), gift card program, valid until → **Activate**.
-4. **Preview** shows who gets how much.
+3. **Preview** shows who gets how much.
 
 Rules:
 - Gross amount (taxes included), without products of the excluded categories.
@@ -36,7 +38,7 @@ Rules:
   campaign has ended, existing gift cards are not touched.
 
 The interface is in English; the German translation is in `i18n/de.po`.
-Dependency: `pos_loyalty` (Odoo 17 Community + Enterprise). Does not work on Odoo Online.
+Dependency: `pos_loyalty` (Odoo 19 Community + Enterprise). Does not work on Odoo Online.
 
 ## Local development
 
@@ -48,7 +50,7 @@ Tests:
 
 ```bash
 docker compose run --rm odoo odoo -d cashback_test -i tapradar_cashback \
-  --test-tags /tapradar_cashback --stop-after-init --without-demo=all
+  --test-tags /tapradar_cashback --stop-after-init --without-demo
 ```
 
 ## TapRadar connection

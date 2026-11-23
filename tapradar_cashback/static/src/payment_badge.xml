@@ -3,9 +3,9 @@
     <!-- Under "Invoice" on the payment screen: whether the chosen customer is
          linked with TapRadar. Only the state, never a TapRadar name or nickname. -->
     <t t-name="tapradar_cashback.PaymentScreenButtons" t-inherit="point_of_sale.PaymentScreenButtons" t-inherit-mode="extension">
-        <xpath expr="//button[hasclass('js_invoice')]" position="after">
-            <t t-set="tapradarPartner" t-value="currentOrder.get_partner()"/>
-            <div t-if="tapradarPartner" class="tapradar-badge py-3 px-3 border-bottom bg-white" role="status">
+        <xpath expr="//button[hasclass('js_invoice')]/.." position="after">
+            <t t-set="tapradarPartner" t-value="currentOrder.getPartner()"/>
+            <div t-if="tapradarPartner" class="tapradar-badge py-2 px-3 rounded bg-white border" role="status">
                 <t t-if="tapradarPartner.tapradar_linked">
                     <i class="fa fa-check-circle text-success me-2" role="img" title="TapRadar"/>
                     <span class="fw-bold text-success">TapRadar ✓</span>

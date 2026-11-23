@@ -17,13 +17,6 @@ class PosOrder(models.Model):
     )
 
     @api.model
-    def _order_fields(self, ui_order):
-        values = super()._order_fields(ui_order)
-        token = ui_order.get("tapradar_points_token")
-        values["tapradar_points_token"] = token[:200] if isinstance(token, str) else False
-        return values
-
-    @api.model
     def _tapradar_unverified_cards(self, spent, token):
         """Loyalty cards in `spent` ({card id: points spent}) whose owner has a TapRadar
         card but `token` does not prove the live card was scanned."""
@@ -39,7 +32,7 @@ class PosOrder(models.Model):
     @api.model
     def tapradar_check_points_spend(self, spent, token):
         """POS, before payment: may this order spend these loyalty points?"""
-        self.check_access_rights("create")
+        self.check_access("create")
         if self._tapradar_unverified_cards(spent or {}, token):
             return {"ok": False, "message": _(
                 "This customer collects points with the TapRadar card. To spend points, "
@@ -66,16 +59,28 @@ class PosOrder(models.Model):
             for card in unverified:
                 if card.id in coupon_data:
                     # Keep what the order earned, never take points away.
-                    change = (coupon_data[card.id].get("points") or 0) + spent[card.id]
-                    coupon_data[card.id]["points"] = max(change, 0.0)
+                    values = coupon_data[card.id]
+                    change = (values.get("points") or 0) + spent[card.id]
+                    values["points"] = max(change, 0.0)
+                    if "points_spent" in values:
+                        # Loyalty history: nothing was spent.
+                        values["points_spent"] = 0.0
+                        values["points_earned"] = values["points"]
             _logger.warning("POS order %s: loyalty points of cards %s kept, TapRadar card not scanned",
                             self.id, unverified.ids)
             message = _("Loyalty points were not deducted: the customer's TapRadar card was not scanned for this order.")
-            self.sudo().note = "\n".join(filter(None, [self.note, message]))
+            self.sudo().internal_note = "\n".join(filter(None, [self.internal_note, message]))
         return super().confirm_coupon_programs(coupon_data)
 
-    def _process_order(self, order, draft, existing_order):
-        order_id = super()._process_order(order, draft, existing_order)
+    @api.model
+    def _process_order(self, order, existing_order):
+        # Any value the till sends is only kept when it is a short string; the
+        # signature is checked when points are deducted.
+        if "tapradar_points_token" in order:
+            token = order["tapradar_points_token"]
+            order["tapradar_points_token"] = token[:200] if isinstance(token, str) and token else False
+        draft = order.get("state") == "draft"
+        order_id = super()._process_order(order, existing_order)
         if not draft:
             pos_order = self.browse(order_id)
             try:

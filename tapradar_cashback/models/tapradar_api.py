@@ -5,7 +5,6 @@ from urllib.parse import urlencode
 
 import requests
 
-from odoo import _
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
@@ -28,17 +27,17 @@ def post(env, api_key, payload):
             timeout=TIMEOUT,
         )
     except requests.RequestException as error:
-        raise UserError(_("TapRadar cannot be reached: %s", error)) from error
+        raise UserError(env._("TapRadar cannot be reached: %s", error)) from error
     if response.status_code == 401:
-        raise UserError(_("TapRadar rejected the integration key. Create a new key in your TapRadar business account."))
+        raise UserError(env._("TapRadar rejected the integration key. Create a new key in your TapRadar business account."))
     if response.status_code == 429:
-        raise UserError(_("Too many attempts. Please wait a few minutes."))
+        raise UserError(env._("Too many attempts. Please wait a few minutes."))
     try:
         body = response.json()
     except ValueError:
         body = {}
     if response.status_code != 200:
-        raise UserError(_("TapRadar answered with an error (%(status)s): %(error)s",
+        raise UserError(env._("TapRadar answered with an error (%(status)s): %(error)s",
                           status=response.status_code, error=body.get("error", "")))
     return body
 

@@ -1,10 +1,12 @@
-/** @odoo-module **/
-
 import { ProductScreen } from "@point_of_sale/app/screens/product_screen/product_screen";
-import { ConfirmPopup } from "@point_of_sale/app/utils/confirm_popup/confirm_popup";
-import { ErrorPopup } from "@point_of_sale/app/errors/popups/error_popup";
+import { PaymentScreen } from "@point_of_sale/app/screens/payment_screen/payment_screen";
+import { useBarcodeReader } from "@point_of_sale/app/hooks/barcode_reader_hook";
+import { PartnerList } from "@point_of_sale/app/screens/partner_list/partner_list";
+import { ask, makeAwaitable } from "@point_of_sale/app/utils/make_awaitable_dialog";
+import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
+import { useService } from "@web/core/utils/hooks";
 
 // TapRadar shop card from the customer app ("Karten"): the card number
 // (TRK + 10 characters) followed by a 6-digit code that changes every 30 s,
@@ -21,85 +23,117 @@ function memberCard(code) {
     return match ? { card: match[1], scanned: value, live: Boolean(match[2]) } : null;
 }
 
+// A new card the cashier chose a customer for, while its code expired before
+// the link went through: scanning the card again links it right away.
+let pending = null;
+
+function alert(screen, body) {
+    screen.dialog.add(AlertDialog, { title: _t("TapRadar"), body });
+}
+
+function showError(screen, error) {
+    const message = error?.data?.message;
+    if (!message) {
+        throw error;
+    }
+    alert(screen, message);
+}
+
+async function select(screen, { partner_id: partnerId, points_token: token }) {
+    const pos = screen.pos;
+    // Always read it again: the scan may have changed whether the customer is
+    // linked with TapRadar (badge on the payment screen).
+    const [partner] = await pos.data.read("res.partner", [partnerId]);
+    const order = pos.getOrder();
+    if (partner && order.getPartner() !== partner) {
+        pos.setPartnerToCurrentOrder(partner);
+    }
+    // The live card was scanned: this order may spend the customer's points.
+    order.tapradar_points_token = token || false;
+    pos.updateRewards?.();
+}
+
+async function link(screen, partnerId, card) {
+    let result;
+    try {
+        result = await screen.pos.data.call("res.partner", "tapradar_link_member_card", [
+            [partnerId],
+            card.scanned,
+        ]);
+    } catch (error) {
+        pending = { card: card.card, partnerId, until: Date.now() + PENDING_MS };
+        return showError(screen, error);
+    }
+    pending = null;
+    await select(screen, result);
+}
+
 // Scanning a TapRadar card selects its customer once TapRadar confirmed the
 // live code, so a screenshot cannot be used to act as that customer. An
-// unknown card asks which customer it belongs to and links it. Cards are
-// recognised whatever the barcode nomenclature makes of them.
+// unknown card asks which customer it belongs to and links it.
+async function cardAction(screen, card) {
+    if (!card.live) {
+        return alert(
+            screen,
+            _t("Scan the live TapRadar card in the customer's app. A photo or screenshot of the card does not work.")
+        );
+    }
+    let found;
+    try {
+        found = await screen.pos.data.call("res.partner", "tapradar_scan_member_card", [card.scanned]);
+    } catch (error) {
+        return showError(screen, error);
+    }
+    if (found) {
+        screen.sound?.play("beep");
+        return select(screen, found);
+    }
+    if (pending && pending.card === card.card && pending.until > Date.now()) {
+        return link(screen, pending.partnerId, card);
+    }
+    const confirmed = await ask(screen.dialog, {
+        title: _t("New TapRadar card"),
+        body: _t(
+            "This TapRadar card is not linked yet. Choose the customer it belongs to, or create a new customer. From then on, scanning the card selects this customer."
+        ),
+        confirmLabel: _t("Choose customer"),
+    });
+    if (!confirmed) {
+        return;
+    }
+    const chosen = await makeAwaitable(screen.dialog, PartnerList, {
+        partner: screen.pos.getOrder().getPartner(),
+    });
+    if (chosen) {
+        return link(screen, chosen.id, card);
+    }
+}
+
+// Cards are recognised whatever the barcode nomenclature makes of them.
 patch(ProductScreen.prototype, {
     async _barcodeProductAction(code) {
         const card = memberCard(code);
-        return card ? this._tapradarCardAction(card) : super._barcodeProductAction(...arguments);
+        return card ? cardAction(this, card) : super._barcodeProductAction(...arguments);
     },
     async _barcodePartnerAction(code) {
         const card = memberCard(code);
-        return card ? this._tapradarCardAction(card) : super._barcodePartnerAction(...arguments);
+        return card ? cardAction(this, card) : super._barcodePartnerAction(...arguments);
     },
-    _tapradarError(error) {
-        const message = error?.data?.message;
-        if (!message) {
-            throw error;
-        }
-        return this.popup.add(ErrorPopup, { title: _t("TapRadar"), body: message });
-    },
-    async _tapradarSelect({ partner_id: partnerId, points_token: token }) {
-        await this.pos._loadPartners([partnerId]);
-        const partner = this.pos.db.get_partner_by_id(partnerId);
-        if (partner && this.currentOrder.get_partner() !== partner) {
-            this.currentOrder.set_partner(partner);
-        }
-        // The live card was scanned: this order may spend the customer's points.
-        this.currentOrder.tapradarPointsToken = token || false;
-    },
-    async _tapradarLink(partnerId, card) {
-        let result;
-        try {
-            result = await this.orm.call("res.partner", "tapradar_link_member_card", [[partnerId], card.scanned]);
-        } catch (error) {
-            // Remember the choice: scanning the card again links it right away.
-            this._tapradarPending = { card: card.card, partnerId, until: Date.now() + PENDING_MS };
-            return this._tapradarError(error);
-        }
-        this._tapradarPending = null;
-        await this._tapradarSelect(result);
-    },
-    async _tapradarCardAction(card) {
-        if (!card.live) {
-            return this.popup.add(ErrorPopup, {
-                title: _t("TapRadar"),
-                body: _t(
-                    "Scan the live TapRadar card in the customer's app. A photo or screenshot of the card does not work."
-                ),
-            });
-        }
-        let found;
-        try {
-            found = await this.orm.call("res.partner", "tapradar_scan_member_card", [card.scanned]);
-        } catch (error) {
-            return this._tapradarError(error);
-        }
-        if (found) {
-            return this._tapradarSelect(found);
-        }
+});
 
-        const pending = this._tapradarPending;
-        if (pending && pending.card === card.card && pending.until > Date.now()) {
-            return this._tapradarLink(pending.partnerId, card);
-        }
-        const { confirmed } = await this.popup.add(ConfirmPopup, {
-            title: _t("New TapRadar card"),
-            body: _t(
-                "This TapRadar card is not linked yet. Choose the customer it belongs to, or create a new customer. From then on, scanning the card selects this customer."
-            ),
-            confirmText: _t("Choose customer"),
-        });
-        if (!confirmed) {
-            return;
-        }
-        const { confirmed: picked, payload: chosen } = await this.pos.showTempScreen("PartnerListScreen", {
-            partner: this.currentOrder.get_partner(),
-        });
-        if (picked && chosen) {
-            return this._tapradarLink(chosen.id, card);
-        }
+// The payment screen asks for the card when points are spent, so the cashier
+// can scan it right there.
+patch(PaymentScreen.prototype, {
+    setup() {
+        super.setup(...arguments);
+        this.barcodeReader = useService("barcode_reader");
+        const onScan = async (code) => {
+            const card = memberCard(code);
+            if (card) {
+                return cardAction(this, card);
+            }
+            this.barcodeReader?.showNotFoundNotification(code);
+        };
+        useBarcodeReader({ product: onScan, client: onScan });
     },
 });

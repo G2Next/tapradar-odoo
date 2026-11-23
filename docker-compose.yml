@@ -1,4 +1,4 @@
-# Local Odoo 17 Community for developing and testing the TapRadar addons.
+# Local Odoo 19 Community for developing and testing the TapRadar addons.
 # Not used on Odoo.sh. Start: docker compose up -d  ->  http://localhost:8069
 services:
   db:
@@ -11,7 +11,7 @@ services:
       - db-data:/var/lib/postgresql/data
 
   odoo:
-    image: odoo:17.0
+    image: odoo:19.0
     depends_on:
       - db
     ports:
@@ -22,8 +22,8 @@ services:
       PASSWORD: odoo
     volumes:
       - ./:/mnt/extra-addons:ro
-      - odoo-data:/var/lib/odoo
+      - odoo19-data:/var/lib/odoo
 
 volumes:
   db-data:
-  odoo-data:
+  odoo19-data:

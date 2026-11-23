@@ -1,6 +1,5 @@
 import json
 import logging
-import threading
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
@@ -105,8 +104,11 @@ class TapradarCashbackEvent(models.Model):
                     ], limit=BATCH_SIZE)
                     if not events or not events._send(company):
                         break
-                    if not getattr(threading.current_thread(), "testing", False):
-                        self.env.cr.commit()
+                    # Inside the scheduled job: keep what was sent, and stop when the
+                    # job's time is up (the next run continues).
+                    if self.env.context.get("ir_cron_progress_id") and \
+                            self.env["ir.cron"]._commit_progress(len(events)) <= 0:
+                        return
 
     def _send(self, company):
         """Send one batch of one kind. Returns True if the batch was delivered (even with rejected cards)."""

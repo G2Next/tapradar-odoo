@@ -7,6 +7,7 @@ import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
 import { useService } from "@web/core/utils/hooks";
+import { useEffect } from "@odoo/owl";
 
 // TapRadar shop card from the customer app ("Karten"): the card number
 // (TRK + 10 characters) followed by a 6-digit code that changes every 30 s,
@@ -135,5 +136,45 @@ patch(PaymentScreen.prototype, {
             this.barcodeReader?.showNotFoundNotification(code);
         };
         useBarcodeReader({ product: onScan, client: onScan });
+    },
+});
+
+// The customer list puts the cursor in its search box, so a scanner types the
+// card there instead of sending it as a scan. A card typed in the search box
+// is handled like a scan: the list closes and the card selects its customer.
+patch(PartnerList.prototype, {
+    setup() {
+        super.setup(...arguments);
+        useEffect(
+            (query) => {
+                this.tapradarSearchCard(query, false);
+            },
+            () => [this.state.query]
+        );
+    },
+    tapradarSearchCard(value, enter) {
+        const card = memberCard({ code: value });
+        if (this.tapradarCardScanned || !card || !(card.live || enter)) {
+            return false;
+        }
+        this.tapradarCardScanned = true;
+        // Keep the order's customer as it is; the card selects its own.
+        this.props.getPayload(this.props.partner || false);
+        this.props.close();
+        // The list is closed: use the till's services, not the list's.
+        cardAction({ pos: this.pos, dialog: this.pos.dialog, sound: this.pos.sound }, card);
+        return true;
+    },
+    async onEnter() {
+        if (this.tapradarSearchCard(this.searchInputRef?.el?.value, true)) {
+            return;
+        }
+        return super.onEnter(...arguments);
+    },
+    async searchPartner() {
+        if (this.tapradarSearchCard(this.searchInputRef?.el?.value, true)) {
+            return [];
+        }
+        return super.searchPartner(...arguments);
     },
 });

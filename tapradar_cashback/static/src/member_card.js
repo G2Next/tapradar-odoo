@@ -2,6 +2,7 @@
 
 import { ProductScreen } from "@point_of_sale/app/screens/product_screen/product_screen";
 import { PaymentScreen } from "@point_of_sale/app/screens/payment_screen/payment_screen";
+import { PartnerListScreen } from "@point_of_sale/app/screens/partner_list/partner_list";
 import { useBarcodeReader } from "@point_of_sale/app/barcode/barcode_reader_hook";
 import { ErrorBarcodePopup } from "@point_of_sale/app/barcode/error_popup/barcode_error_popup";
 import { ConfirmPopup } from "@point_of_sale/app/utils/confirm_popup/confirm_popup";
@@ -127,5 +128,21 @@ patch(PaymentScreen.prototype, {
             return this.popup.add(ErrorBarcodePopup, { code: code.base_code || code.code });
         };
         useBarcodeReader({ product: onScan, client: onScan });
+    },
+});
+
+// The customer list puts the cursor in its search box, so a scanner types the
+// card there instead of sending it as a scan. A card typed in the search box
+// is handled like a scan: the list closes and the card selects its customer.
+patch(PartnerListScreen.prototype, {
+    async updatePartnerList(event) {
+        const card = memberCard({ code: event?.target?.value });
+        if (card && (card.live || event.key === "Enter")) {
+            this.props.resolve({ confirmed: false, payload: false });
+            this.pos.closeTempScreen();
+            // The list is closed: use the till's services, not the list's.
+            return cardAction({ pos: this.pos, orm: this.pos.orm, popup: this.pos.popup }, card);
+        }
+        return super.updatePartnerList(...arguments);
     },
 });
